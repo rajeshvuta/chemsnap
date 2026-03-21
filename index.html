@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ChemSnap">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#080810">
+<meta name="description" content="25 swipeable high school chemistry lessons + quiz.">
+<title>ChemSnap – High School Chemistry</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+<!-- PWA icons + manifest injected after DOM ready -->
+<script>
+window.addEventListener('DOMContentLoaded',function(){
+  function makeIcon(sz){
+    var c=document.createElement('canvas');c.width=c.height=sz;
+    var x=c.getContext('2d'),r=sz*0.18;
+    x.fillStyle='#080810';x.beginPath();x.roundRect(0,0,sz,sz,r);x.fill();
+    var g=x.createRadialGradient(sz*.42,sz*.38,0,sz*.5,sz*.5,sz*.46);
+    g.addColorStop(0,'#a695f5');g.addColorStop(1,'#5b21b6');
+    x.fillStyle=g;x.beginPath();x.arc(sz*.5,sz*.46,sz*.27,0,Math.PI*2);x.fill();
+    x.fillStyle='rgba(255,255,255,0.92)';
+    x.beginPath();x.moveTo(sz*.38,sz*.28);x.lineTo(sz*.38,sz*.48);x.lineTo(sz*.26,sz*.66);
+    x.quadraticCurveTo(sz*.22,sz*.74,sz*.30,sz*.74);x.lineTo(sz*.70,sz*.74);
+    x.quadraticCurveTo(sz*.78,sz*.74,sz*.74,sz*.66);x.lineTo(sz*.62,sz*.48);x.lineTo(sz*.62,sz*.28);x.closePath();x.fill();
+    x.fillRect(sz*.35,sz*.26,sz*.30,sz*.04);
+    var lg=x.createLinearGradient(0,sz*.55,0,sz*.74);lg.addColorStop(0,'#2de2d5');lg.addColorStop(1,'#0891b2');
+    x.fillStyle=lg;x.beginPath();x.moveTo(sz*.30,sz*.62);x.lineTo(sz*.27,sz*.68);
+    x.quadraticCurveTo(sz*.23,sz*.74,sz*.31,sz*.74);x.lineTo(sz*.69,sz*.74);
+    x.quadraticCurveTo(sz*.77,sz*.74,sz*.73,sz*.68);x.lineTo(sz*.70,sz*.62);x.closePath();x.fill();
+    x.fillStyle='rgba(255,255,255,0.9)';x.font='bold '+(sz*.1)+'px sans-serif';x.textAlign='center';x.fillText('ChemSnap',sz*.5,sz*.89);
+    return c.toDataURL('image/png');
+  }
+  var ic=makeIcon(192);
+  ['apple-touch-icon','shortcut icon'].forEach(function(r,i){
+    var l=document.createElement('link');l.rel=r;if(i)l.type='image/png';l.href=ic;document.head.appendChild(l);
+  });
+  var mf={name:'ChemSnap – Chemistry',short_name:'ChemSnap',start_url:'./',display:'standalone',orientation:'portrait',background_color:'#080810',theme_color:'#080810',
+    icons:[{src:ic,sizes:'192x192',type:'image/png',purpose:'any maskable'}]};
+  var bl=new Blob([JSON.stringify(mf)],{type:'application/manifest+json'});
+  var ml=document.createElement('link');ml.rel='manifest';ml.href=URL.createObjectURL(bl);document.head.appendChild(ml);
+
+  // iOS A2HS hint after 6s
+  var isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  var standalone=navigator.standalone||window.matchMedia('(display-mode:standalone)').matches;
+  if(isIOS&&!standalone&&!sessionStorage.getItem('a2hs')){
+    setTimeout(function(){var b=document.getElementById('a2hs');if(b)b.style.display='flex';},6000);
+  }
+});
+</script>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;width:100%;overflow:hidden;background:#000;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+:root{
+  --bg:#080810;--s2:#16162a;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);
+  --tx:#f2f0ff;--mu:rgba(242,240,255,0.45);--mu2:rgba(242,240,255,0.7);
+  --v:#7b68ee;--vl:#a695f5;--vd:rgba(123,104,238,0.18);
+  --tl:#2de2d5;--td:rgba(45,226,213,0.15);
+  --co:#ff6b6b;--cd:rgba(255,107,107,0.15);
+  --go:#ffc93c;--gd:rgba(255,201,60,0.15);
+  --gr:#43e97b;--grd:rgba(67,233,123,0.12);
+  --bl:#4facfe;--bld:rgba(79,172,254,0.15);
+  --sat:env(safe-area-inset-top,44px);--sab:env(safe-area-inset-bottom,34px);
+  --f1:'Plus Jakarta Sans',sans-serif;--f2:'DM Sans',sans-serif;
+}
+
+body{display:flex;align-items:center;justify-content:center}
+
+#shell{
+  position:relative;width:100%;max-width:430px;
+  height:100vh;max-height:932px;
+  overflow:hidden;background:var(--bg);
+}
+
+/* Desktop iPhone frame */
+@media(min-width:500px) and (min-height:780px){
+  body{background:#060606}
+  #shell{
+    width:390px;height:844px;border-radius:52px;
+    box-shadow:0 0 0 1px rgba(255,255,255,0.12),0 0 0 10px #1a1a1a,0 0 0 11px rgba(255,255,255,0.06),0 40px 90px rgba(0,0,0,0.85),0 0 100px rgba(123,104,238,0.1);
+  }
+  #shell::before{content:'';position:absolute;top:12px;left:50%;transform:translateX(-50%);width:118px;height:34px;background:#000;border-radius:18px;z-index:9999}
+  body::before{content:'';position:fixed;left:calc(50% - 199px);top:calc(50% - 422px + 155px);width:4px;height:30px;background:#222;border-radius:2px 0 0 2px;box-shadow:0 44px 0 #222,0 82px 0 #222}
+  body::after{content:'';position:fixed;right:calc(50% - 199px);top:calc(50% - 422px + 195px);width:4px;height:62px;background:#222;border-radius:0 2px 2px 0}
+}
+
+#app{width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden;position:relative}
+
+/* Status bar */
+#sb{position:absolute;top:0;left:0;right:0;height:54px;z-index:1000;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 8px;pointer-events:none}
+@media(min-width:500px){#sb{height:60px;padding-top:14px}}
+.st{font-family:var(--f1);font-size:15px;font-weight:700;color:var(--tx);letter-spacing:0}
+.si{display:flex;gap:6px;align-items:center}
+.si svg{fill:var(--tx)}
+
+/* Nav bar */
+#nb{position:absolute;top:54px;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:8px 18px 10px;background:linear-gradient(to bottom,rgba(8,8,16,0.97) 0%,rgba(8,8,16,0) 100%)}
+@media(min-width:500px){#nb{top:60px}}
+.lm{display:flex;align-items:center;gap:8px}
+.li{width:32px;height:32px;background:var(--vd);border:1px solid rgba(123,104,238,0.3);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.lt{font-family:var(--f1);font-size:18px;font-weight:800;letter-spacing:-0.5px;color:var(--tx)}
+.lt span{color:var(--vl)}
+#dr{display:flex;gap:3px;align-items:center;flex-wrap:nowrap;max-width:140px;overflow:hidden}
+.pd{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,0.16);transition:all 0.32s cubic-bezier(0.34,1.56,0.64,1);flex-shrink:0}
+.pd.seen{background:var(--tl);opacity:.65}
+.pd.active{background:var(--vl);width:14px;border-radius:3px;opacity:1}
+.pd.qt{background:rgba(255,107,107,0.25)}
+.pd.qt.seen{background:var(--co);opacity:.65}
+.pd.qt.active{background:var(--co);width:14px;border-radius:3px}
+#xc{display:flex;align-items:center;gap:5px;background:rgba(255,201,60,0.1);border:1px solid rgba(255,201,60,0.25);border-radius:20px;padding:5px 10px;cursor:pointer;transition:transform .2s}
+#xc:active{transform:scale(0.93)}
+#xt{font-family:var(--f1);font-size:13px;font-weight:700;color:var(--go)}
+
+/* Feed + Cards */
+#feed{position:absolute;inset:0;overflow:hidden}
+.card{position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden;transform:translateY(100%);transition:transform .5s cubic-bezier(0.16,1,0.3,1);will-change:transform}
+.card.active{transform:translateY(0)}
+.card.exit-up{transform:translateY(-100%)}
+
+/* Lesson card layers */
+.cbg{position:absolute;inset:0;z-index:0}
+/* Art: top 52% of card, shifted up slightly */
+.cart{position:absolute;top:0;left:0;right:0;height:52%;z-index:1;display:flex;align-items:center;justify-content:center;padding:100px 16px 0}
+.cart svg{width:100%;height:100%;max-height:220px}
+/* Gradient overlay starting from 38% */
+.cgr{position:absolute;top:36%;left:0;right:0;bottom:0;z-index:2;pointer-events:none}
+/* Text info pinned to bottom */
+.ci{position:absolute;bottom:0;left:0;right:0;z-index:3;padding:0 20px calc(var(--sab,34px) + 84px) 20px}
+.ln{position:absolute;top:65px;right:16px;font-family:var(--f1);font-size:72px;font-weight:800;opacity:.055;line-height:1;color:#fff;z-index:1;letter-spacing:-4px;pointer-events:none}
+
+/* Lesson text — NO letter-spacing compression */
+.ltag{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:50px;font-family:var(--f2);font-size:11px;font-weight:500;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:10px}
+.lttl{font-family:var(--f1);font-size:24px;font-weight:800;line-height:1.15;letter-spacing:-0.3px;margin-bottom:10px;color:var(--tx)}
+.lbod{font-family:var(--f2);font-size:14px;line-height:1.6;color:var(--mu2);margin-bottom:14px;font-weight:400}
+.lbod strong{color:var(--tx);font-weight:600}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.fc{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:9px 11px;backdrop-filter:blur(8px)}
+.fl{font-family:var(--f2);font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:2px}
+.fv{font-family:var(--f1);font-size:12px;font-weight:700;color:var(--tx)}
+
+/* Swipe cue */
+.sc{position:absolute;bottom:calc(var(--sab,34px)+70px);left:50%;transform:translateX(-50%);z-index:10;display:flex;flex-direction:column;align-items:center;gap:4px;opacity:0;animation:fadeC 4s 2s ease-in-out forwards}
+@keyframes fadeC{0%{opacity:0;transform:translateX(-50%) translateY(8px)}25%{opacity:1;transform:translateX(-50%) translateY(0)}75%{opacity:1}100%{opacity:0}}
+.sa{width:30px;height:30px;background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.14);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;animation:bouncA 1.3s ease-in-out infinite}
+@keyframes bouncA{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.sl{font-family:var(--f2);font-size:10px;color:var(--mu);letter-spacing:.5px}
+
+/* Quiz cards */
+.qci{position:absolute;inset:0;display:flex;flex-direction:column;padding:calc(var(--sat,44px) + 68px) 20px calc(var(--sab,34px) + 84px);overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+.qbadge{display:inline-flex;align-items:center;gap:6px;background:var(--cd);border:1px solid rgba(255,107,107,0.3);border-radius:50px;padding:5px 12px;font-family:var(--f2);font-size:11px;font-weight:500;color:var(--co);letter-spacing:.5px;text-transform:uppercase;margin-bottom:14px;width:fit-content}
+.qpbar{height:3px;background:rgba(255,255,255,0.08);border-radius:2px;margin-bottom:18px;overflow:hidden}
+.qpfill{height:100%;background:var(--co);border-radius:2px;transition:width .4s ease}
+.qq{font-family:var(--f1);font-size:21px;font-weight:700;line-height:1.28;letter-spacing:-0.2px;color:var(--tx);margin-bottom:20px;flex-shrink:0}
+.ol{display:flex;flex-direction:column;gap:9px;flex-shrink:0}
+.opt{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.09);border-radius:15px;padding:13px 15px;cursor:pointer;transition:all .18s ease;text-align:left;width:100%;-webkit-tap-highlight-color:transparent}
+.opt:active{transform:scale(0.98)}
+.opt:hover{background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.16)}
+.ok{width:30px;height:30px;flex-shrink:0;border-radius:9px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-family:var(--f1);font-size:12px;font-weight:700;color:var(--mu2);transition:all .2s}
+.ot{font-family:var(--f2);font-size:14px;line-height:1.4;color:var(--tx);flex:1}
+.opt.cor{background:rgba(45,226,213,0.1);border-color:rgba(45,226,213,0.5)}
+.opt.cor .ok{background:var(--tl);border-color:var(--tl);color:#000}
+.opt.wrg{background:rgba(255,107,107,0.08);border-color:rgba(255,107,107,0.4)}
+.opt.wrg .ok{background:var(--co);border-color:var(--co);color:#fff}
+.opt.dim{opacity:.38}
+.opt:disabled,.opt[disabled]{cursor:default;pointer-events:none}
+.fb{margin-top:13px;padding:12px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:13px;font-family:var(--f2);font-size:13px;line-height:1.55;color:var(--mu2);opacity:0;transform:translateY(5px);transition:all .3s ease;flex-shrink:0}
+.fb.show{opacity:1;transform:translateY(0)}
+.cb{margin-top:15px;background:var(--v);border:none;border-radius:15px;padding:15px;color:#fff;font-family:var(--f1);font-size:15px;font-weight:700;cursor:pointer;width:100%;letter-spacing:0;opacity:0;transform:translateY(7px);transition:all .3s .12s ease;flex-shrink:0;-webkit-tap-highlight-color:transparent}
+.cb.show{opacity:1;transform:translateY(0)}
+.cb:active{transform:scale(0.98)}
+
+/* Final card */
+.fin{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 24px calc(var(--sab,34px)+96px);text-align:center}
+.rw{position:relative;width:136px;height:136px;margin-bottom:22px}
+.rw svg{position:absolute;inset:0;width:100%;height:100%}
+.rc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.rp{font-family:var(--f1);font-size:34px;font-weight:800;color:var(--tx)}
+.rl{font-family:var(--f2);font-size:10px;color:var(--mu);letter-spacing:.5px}
+.fg{font-family:var(--f1);font-size:24px;font-weight:800;margin-bottom:7px}
+.fm{font-family:var(--f2);font-size:14px;color:var(--mu2);line-height:1.5;margin-bottom:22px;max-width:270px}
+.fs{display:flex;gap:10px;margin-bottom:24px;width:100%}
+.fst{background:var(--s2);border:1px solid var(--border);border-radius:14px;padding:13px 16px;text-align:center;flex:1}
+.fsn{font-family:var(--f1);font-size:22px;font-weight:800;margin-bottom:1px}
+.fsl{font-family:var(--f2);font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:.7px}
+.fb2{background:var(--vd);border:1.5px solid rgba(123,104,238,0.4);border-radius:14px;padding:14px;width:100%;color:var(--vl);font-family:var(--f1);font-size:14px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.fb2:active{transform:scale(0.98)}
+
+/* Bottom nav */
+#bn{position:absolute;bottom:0;left:0;right:0;z-index:200;display:flex;align-items:flex-start;justify-content:space-around;padding:11px 10px calc(var(--sab,34px) + 2px);background:rgba(8,8,16,0.88);backdrop-filter:blur(20px);border-top:.5px solid var(--border)}
+.nb{display:flex;flex-direction:column;align-items:center;gap:4px;padding:5px 18px;border-radius:13px;cursor:pointer;transition:transform .2s;background:none;border:none;-webkit-tap-highlight-color:transparent}
+.nb:active{transform:scale(0.88)}
+.ni{font-size:21px;line-height:1}
+.nl{font-family:var(--f2);font-size:10px;color:var(--mu);letter-spacing:.3px}
+.nb.active .nl{color:var(--vl)}
+.nb.active .ni{filter:drop-shadow(0 0 7px rgba(123,104,238,0.6))}
+.nd{width:4px;height:4px;border-radius:50%;background:var(--v);margin-top:-1px;opacity:0;transition:opacity .2s}
+.nb.active .nd{opacity:1}
+
+/* Progress screen */
+#ps{position:absolute;inset:0;z-index:500;background:var(--bg);transform:translateY(100%);transition:transform .45s cubic-bezier(0.16,1,0.3,1);overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column}
+#ps.open{transform:translateY(0)}
+.psh{position:sticky;top:0;padding:calc(var(--sat,44px)+8px) 20px 13px;background:rgba(8,8,16,0.92);backdrop-filter:blur(16px);border-bottom:.5px solid var(--border);z-index:10;display:flex;align-items:center;gap:11px}
+.bkb{width:36px;height:36px;background:var(--s2);border:1px solid var(--border2);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;-webkit-tap-highlight-color:transparent;flex-shrink:0}
+.bkb:active{transform:scale(0.9)}
+.pstl{font-family:var(--f1);font-size:20px;font-weight:800;letter-spacing:-.3px}
+.psb{padding:18px;padding-bottom:calc(var(--sab,34px)+28px);display:flex;flex-direction:column;gap:18px}
+.sg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
+.st2{background:var(--s2);border:1px solid var(--border);border-radius:16px;padding:13px 9px;text-align:center}
+.sn{font-family:var(--f1);font-size:24px;font-weight:800;margin-bottom:1px}
+.sl2{font-family:var(--f2);font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:.7px}
+.sectit{font-family:var(--f1);font-size:15px;font-weight:700;color:var(--mu2);margin-bottom:9px;letter-spacing:-.1px}
+.ltile{background:var(--s2);border:1px solid var(--border);border-radius:16px;padding:13px 15px;display:flex;align-items:center;gap:12px;margin-bottom:7px}
+.ltile:last-child{margin-bottom:0}
+.ltic{width:38px;height:38px;flex-shrink:0;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.ltin{flex:1;min-width:0}
+.ltnm{font-family:var(--f1);font-size:13px;font-weight:700;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--tx)}
+.lttg{font-family:var(--f2);font-size:11px;color:var(--mu)}
+.lts{flex-shrink:0;padding:4px 9px;border-radius:7px;font-family:var(--f2);font-size:11px;font-weight:600}
+.sd{background:rgba(45,226,213,0.12);color:var(--tl)}
+.sn2{background:var(--vd);color:var(--vl)}
+.slk{background:rgba(255,255,255,0.04);color:var(--mu)}
+.qrt{background:var(--s2);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.qrr{display:flex;align-items:flex-start;gap:9px;padding:11px 14px;border-bottom:.5px solid var(--border);font-family:var(--f2);font-size:13px}
+.qrr:last-child{border-bottom:none}
+.qrm{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px}
+.qok{background:rgba(45,226,213,0.2);color:var(--tl)}
+.qno{background:rgba(255,107,107,0.2);color:var(--co)}
+.qbl{background:rgba(255,255,255,0.05);color:var(--mu)}
+.qrq{flex:1;color:var(--mu2);line-height:1.4}
+.qrp{font-family:var(--f1);font-size:12px;font-weight:700;color:var(--go);flex-shrink:0;margin-top:1px}
+
+/* Toast */
+#toast{position:absolute;top:calc(var(--sat,44px)+58px);left:50%;transform:translateX(-50%) translateY(-12px);background:rgba(20,20,36,0.96);border:1px solid var(--border2);border-radius:18px;padding:8px 16px;font-family:var(--f2);font-size:13px;color:var(--tx);white-space:nowrap;z-index:2000;opacity:0;transition:all .3s ease;pointer-events:none;backdrop-filter:blur(16px)}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* A2HS banner */
+#a2hs{position:absolute;bottom:0;left:0;right:0;z-index:1000;background:rgba(14,14,28,0.97);backdrop-filter:blur(20px);border-top:.5px solid rgba(123,104,238,0.3);padding:14px 18px calc(env(safe-area-inset-bottom,34px)+8px);display:none;align-items:center;gap:13px;animation:slideUp .45s cubic-bezier(0.16,1,0.3,1) both}
+@keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+#a2hs-dismiss{background:none;border:none;color:var(--mu);font-size:20px;cursor:pointer;padding:5px;line-height:1;flex-shrink:0}
+
+*{scrollbar-width:none;-ms-overflow-style:none}
+*::-webkit-scrollbar{display:none}
+</style>
+</head>
+<body>
+<div id="shell">
+<div id="app">
+
+  <div id="sb">
+    <div class="st" id="clk">9:41</div>
+    <div class="si">
+      <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="3" width="3" height="9" rx="1" opacity=".4"/><rect x="4.5" y="2" width="3" height="10" rx="1" opacity=".6"/><rect x="9" y=".5" width="3" height="11.5" rx="1" opacity=".85"/><rect x="13.5" y="0" width="2.5" height="12" rx="1"/></svg>
+      <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 2.4C10.2 2.4 12.2 3.3 13.6 4.8L15 3.3C13.2 1.3 10.7 0 8 0 5.3 0 2.8 1.3 1 3.3L2.4 4.8C3.8 3.3 5.8 2.4 8 2.4Z" opacity=".4"/><path d="M8 5C9.5 5 10.8 5.6 11.8 6.6L13.2 5.1C11.8 3.8 9.98 3 8 3 6.02 3 4.2 3.8 2.8 5.1L4.2 6.6C5.2 5.6 6.5 5 8 5Z" opacity=".7"/><path d="M8 7.5C9 7.5 9.9 7.9 10.6 8.6L12 7.1C10.9 6.1 9.5 5.5 8 5.5 6.5 5.5 5.1 6.1 4 7.1L5.4 8.6C6.1 7.9 7 7.5 8 7.5Z"/><circle cx="8" cy="11" r="1.5"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12"><rect x=".5" y=".5" width="21" height="11" rx="3.5" stroke="rgba(255,255,255,0.4)" stroke-width="1" fill="none"/><rect x="22.5" y="3.5" width="2" height="5" rx="1" fill="rgba(255,255,255,0.4)"/><rect x="2" y="2" width="18" height="8" rx="2" fill="white"/></svg>
+    </div>
+  </div>
+
+  <div id="nb">
+    <div class="lm">
+      <div class="li">⚗️</div>
+      <div class="lt">Chem<span>Snap</span></div>
+    </div>
+    <div id="dr"></div>
+    <div id="xc" onclick="openProgress()">
+      <span style="font-size:13px">⭐</span>
+      <span id="xt">0 XP</span>
+    </div>
+  </div>
+
+  <div id="feed"></div>
+
+  <div id="bn">
+    <button class="nb active" id="n-home" onclick="navTo('home')">
+      <span class="ni">🏠</span><span class="nl">Learn</span><div class="nd"></div>
+    </button>
+    <button class="nb" id="n-quiz" onclick="navTo('quiz')">
+      <span class="ni">🧪</span><span class="nl">Quiz</span><div class="nd"></div>
+    </button>
+    <button class="nb" id="n-prog" onclick="openProgress()">
+      <span class="ni">📊</span><span class="nl">Progress</span><div class="nd"></div>
+    </button>
+  </div>
+
+  <div id="ps"></div>
+  <div id="toast"></div>
+
+  <div id="a2hs">
+    <div style="width:42px;height:42px;border-radius:11px;flex-shrink:0;background:#12122a;border:1px solid rgba(123,104,238,0.3);display:flex;align-items:center;justify-content:center;font-size:22px">⚗️</div>
+    <div style="flex:1;min-width:0">
+      <div style="font-family:var(--f1);font-size:14px;font-weight:700;color:var(--tx);margin-bottom:2px">Add to Home Screen</div>
+      <div style="font-family:var(--f2);font-size:12px;color:var(--mu)">Tap <b style="color:var(--mu2)">Share ↑</b> → <b style="color:var(--mu2)">Add to Home Screen</b></div>
+    </div>
+    <button id="a2hs-dismiss" onclick="dismissA2HS()">✕</button>
+  </div>
+</div>
+</div>
+
+<script>
+// ====== DATA ======
+var LESSONS = [
+  {tag:'Atomic Structure',em:'⚛️',ac:'#7b68ee',ad:'rgba(123,104,238,0.15)',
+   bg:'radial-gradient(ellipse at 30% 20%,rgba(123,104,238,0.25) 0%,transparent 60%),radial-gradient(ellipse at 70% 80%,rgba(45,226,213,0.1) 0%,transparent 50%),#08080f',
+   gr:'linear-gradient(to top,#08080f 40%,transparent)',
+   title:"The Atom: Universe's Building Block",
+   body:"Every substance is made of <strong>atoms</strong> — tiny particles with a dense <strong>nucleus</strong> of protons & neutrons, surrounded by <strong>electrons</strong> in energy shells.",
+   facts:[{l:'Protons',v:'+charge'},{l:'Neutrons',v:'neutral'},{l:'Electrons',v:'−charge'},{l:'Nucleus size',v:'10⁻¹⁵ m'}],
+   art:`<svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ng"><stop offset="0%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#5b21b6"/></radialGradient></defs><ellipse cx="150" cy="100" rx="105" ry="42" fill="none" stroke="rgba(123,104,238,0.4)" stroke-width="1.5" stroke-dasharray="5,3"/><ellipse cx="150" cy="100" rx="75" ry="90" fill="none" stroke="rgba(45,226,213,0.35)" stroke-width="1.5" stroke-dasharray="5,3"/><ellipse cx="150" cy="100" rx="120" ry="28" fill="none" stroke="rgba(255,201,60,0.25)" stroke-width="1.2" stroke-dasharray="4,4" transform="rotate(55 150 100)"/><circle cx="150" cy="100" r="20" fill="url(#ng)"/><text x="150" y="97" text-anchor="middle" fill="white" font-size="8" font-family="DM Sans" font-weight="600">p⁺ n⁰</text><text x="150" y="108" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-size="7" font-family="DM Sans">nucleus</text><circle cx="255" cy="100" r="8" fill="#7b68ee"/><circle cx="45" cy="100" r="8" fill="#7b68ee"/><circle cx="150" cy="18" r="8" fill="#2de2d5"/><circle cx="150" cy="182" r="8" fill="#2de2d5"/><circle cx="215" cy="52" r="7" fill="#ffc93c"/><circle cx="85" cy="148" r="7" fill="#ffc93c"/><text x="267" y="98" fill="rgba(123,104,238,0.9)" font-size="10" font-family="DM Sans">e⁻</text><text x="158" y="16" fill="rgba(45,226,213,0.9)" font-size="10" font-family="DM Sans">e⁻</text><text x="223" y="50" fill="rgba(255,201,60,0.9)" font-size="10" font-family="DM Sans">e⁻</text></svg>`},
+
+  {tag:'Periodic Table',em:'🧲',ac:'#2de2d5',ad:'rgba(45,226,213,0.15)',
+   bg:'radial-gradient(ellipse at 20% 30%,rgba(45,226,213,0.18) 0%,transparent 55%),radial-gradient(ellipse at 80% 70%,rgba(67,233,123,0.1) 0%,transparent 50%),#080f10',
+   gr:'linear-gradient(to top,#080f10 40%,transparent)',
+   title:"Periodic Table: Map of All Matter",
+   body:"118 elements organized by <strong>atomic number</strong>. Same <strong>group (column)</strong> = same valence electrons = similar chemistry. Same <strong>period (row)</strong> = same electron shells.",
+   facts:[{l:'Total elements',v:'118'},{l:'Natural',v:'94'},{l:'Lightest',v:'Hydrogen'},{l:'Heaviest natural',v:'Uranium'}],
+   art:`<svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">${[['H','1','#7b68ee',8,8],['He','2','#ffc93c',271,8],['Li','3','#2de2d5',8,42],['Be','4','#2de2d5',36,42],['B','5','#ff6b6b',152,42],['C','6','#ff6b6b',180,42],['N','7','#ff6b6b',208,42],['O','8','#ff6b6b',236,42],['F','9','#ff6b6b',264,42],['Na','11','#2de2d5',8,76],['Mg','12','#2de2d5',36,76],['Al','13','#a78bfa',152,76],['Si','14','#ff6b6b',180,76],['P','15','#ff6b6b',208,76],['S','16','#ff6b6b',236,76],['K','19','#2de2d5',8,110],['Ca','20','#2de2d5',36,110],['Fe','26','#94a3b8',120,110],['Cu','29','#94a3b8',148,110],['Zn','30','#94a3b8',176,110],['Au','79','#ffc93c',264,110]].map(function(e){return '<g><rect x="'+e[3]+'" y="'+e[4]+'" width="25" height="28" rx="4" fill="'+e[2]+'" fill-opacity="0.14" stroke="'+e[2]+'" stroke-opacity="0.5" stroke-width="0.7"/><text x="'+(e[3]+12.5)+'" y="'+(e[4]+10)+'" text-anchor="middle" fill="'+e[2]+'" font-size="6" font-family="DM Sans" opacity="0.6">'+e[1]+'</text><text x="'+(e[3]+12.5)+'" y="'+(e[4]+23)+'" text-anchor="middle" fill="white" font-size="10" font-family="DM Sans" font-weight="600">'+e[0]+'</text></g>';}).join('')}<rect x="8" y="150" width="11" height="5" rx="1" fill="#2de2d5" fill-opacity="0.5"/><text x="23" y="155" fill="rgba(242,240,255,0.5)" font-size="7.5" font-family="DM Sans">Metals</text><rect x="70" y="150" width="11" height="5" rx="1" fill="#ff6b6b" fill-opacity="0.5"/><text x="85" y="155" fill="rgba(242,240,255,0.5)" font-size="7.5" font-family="DM Sans">Nonmetals</text><rect x="140" y="150" width="11" height="5" rx="1" fill="#ffc93c" fill-opacity="0.5"/><text x="155" y="155" fill="rgba(242,240,255,0.5)" font-size="7.5" font-family="DM Sans">Noble gases</text><rect x="8" y="168" width="284" height="26" rx="8" fill="rgba(45,226,213,0.05)" stroke="rgba(45,226,213,0.2)" stroke-width="0.7"/><text x="150" y="183" text-anchor="middle" fill="rgba(45,226,213,0.85)" font-size="9" font-family="DM Sans" font-weight="500">Groups share valence electrons → similar reactions</text></svg>`},
+
+  {tag:'Atomic Theory',em:'🔭',ac:'#ffc93c',ad:'rgba(255,201,60,0.15)',
+   bg:'radial-gradient(ellipse at 50% 20%,rgba(255,201,60,0.18) 0%,transparent 55%),#0f0a00',
+   gr:'linear-gradient(to top,#0f0a00 40%,transparent)',
+   title:"Atomic Theory: 200 Years of Discoveries",
+   body:"Our model of the atom evolved over time. From Dalton's solid spheres → Thomson's plum pudding → Rutherford's nucleus → Bohr's orbits → Schrödinger's <strong>electron cloud model</strong>.",
+   facts:[{l:'Dalton',v:'1803: solid sphere'},{l:'Thomson',v:'1897: electrons'},{l:'Rutherford',v:'1911: nucleus'},{l:'Bohr',v:'1913: energy levels'}],
+   art:`<svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg"><circle cx="52" cy="80" r="22" fill="rgba(255,201,60,0.2)" stroke="rgba(255,201,60,0.5)" stroke-width="1.2"/><text x="52" y="76" text-anchor="middle" fill="#ffc93c" font-size="8" font-family="DM Sans" font-weight="600">Dalton</text><text x="52" y="88" text-anchor="middle" fill="rgba(255,201,60,0.6)" font-size="7" font-family="DM Sans">solid</text><text x="52" y="114" text-anchor="middle" fill="rgba(242,240,255,0.4)" font-size="7.5" font-family="DM Sans">1803</text><circle cx="120" cy="80" r="22" fill="rgba(167,139,250,0.2)" stroke="rgba(167,139,250,0.5)" stroke-width="1.2"/><circle cx="112" cy="76" r="3" fill="#a78bfa"/><circle cx="128" cy="76" r="3" fill="#a78bfa"/><circle cx="120" cy="88" r="3" fill="#a78bfa"/><text x="120" y="114" text-anchor="middle" fill="rgba(242,240,255,0.4)" font-size="7.5" font-family="DM Sans">1897</text><text x="120" y="107" text-anchor="middle" fill="rgba(242,240,255,0.5)" font-size="7.5" font-family="DM Sans">Thomson</text><circle cx="188" cy="80" r="8" fill="rgba(255,107,107,0.6)"/><ellipse cx="188" cy="80" rx="22" ry="9" fill="none" stroke="rgba(255,107,107,0.4)" stroke-width="1"/><circle cx="210" cy="80" r="4" fill="#ff6b6b"/><text x="188" y="107" text-anchor="middle" fill="rgba(242,240,255,0.5)" font-size="7.5" font-family="DM Sans">Rutherford</text><text x="188" y="114" text-anchor="middle" fill="rgba(242,240,255,0.4)" font-size="7.5" font-family="DM Sans">1911</text><circle cx="256" cy="80" r="6" fill="rgba(45,226,213,0.8)"/><circle cx="256" cy="80" rx="18" ry="18" r="18" fill="none" stroke="rgba(45,226,213,0.35)" stroke-width="1.2" stroke-dasharray="3,2"/><circle cx="256" cy="80" r="30" fill="none" stroke="rgba(45,226,213,0.2)" stroke-width="1"/><circle cx="274" cy="62" r="4" fill="#2de2d5"/><text x="256" y="118" text-anchor="middle" fill="rgba(242,240,255,0.5)" font-size="7.5" font-family="DM Sans">Bohr / QM</text><text x="256" y="114" text-anchor="middle" fill="rgba(242,240,255,0.4)" font-size="7" font-family="DM Sans">1913+</text><rect x="8" y="138" width="284" height="44" rx="10" fill="rgba(255,201,60,0.05)" stroke="rgba(255,201,60,0.18)" stroke-width="0.7"/><text x="150" y="155" text-anchor="middle" fill="rgba(255,201,60,0.85)" font-size="9.5" font-family="DM Sans" font-weight="500">Modern model: electrons exist in probability clouds</text><text x="150" y="171" text-anchor="middle" fill="rgba(242,240,255,0.5)" font-size="9" font-family="DM Sans">Quantum mechanics governs atomic behavior</text></svg>`},
+
+  {tag:'Chemical Bonding',em:'🔗',ac:'#ff6b6b',ad:'rgba(255,107,107,0.15)',
+   bg:'radial-gradient(ellipse at 60% 20%,rgba(255,107,107,0.2) 0%,transparent 55%),#100808',
+   gr:'linear-gradient(to top,#100808 40%,transparent)',
+   title:"Bonds: How Atoms Hook Up",
+   body:"<strong>Ionic bonds</strong> transfer electrons (metal + nonmetal). <strong>Covalent bonds</strong> share electrons (nonmetal + nonmetal). Bond type drives all physical properties.",
+   facts:[{l:'Ionic',v:'NaCl (salt)'},{l:'Covalent',v:'H₂O (water)'},{l:'Metallic',v:'sea of e⁻'},{l:'Polar covalent',v:'unequal share'}],
+   art:`<svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg"><text x="75" y="18" text-anchor="middle" fill="rgba(242,240,255,0.45)" font-size="9" font-family="DM Sans">IONIC</text><circle cx="42" cy="80" r="28" fill="rgba(123,104,238,0.2)" stroke="rgba(123,104,238,0.6)" stroke-width="1.5"/><text x="42" y="76" text-anchor="middle" fill="#a78bfa" font-size="16" font-family="DM Sans" font-weight="700">Na</text><text x="42" y="92" text-anchor="middle" fill="#a78bfa" font-size="11" font-family="DM Sans">+</text><circle cx="110" cy="80" r="33" fill="rgba(255,107,107,0.2)" stroke="rgba(255,107,107,0.6)" stroke-width="1.5"/><text x="110" y="76" text-anchor="middle" fill="#ff6b6b" font-size="16" font-family="DM Sans" font-weight="700">Cl</text><text x="110" y="92" text-anchor="middle" fill="#ff6b6b" font-size="11" font-family="DM Sans">−</text><circle cx="76" cy="80" r="5" fill="#ffc93c"/><text x="76" y="115" text-anchor="middle" fill="rgba(255,201,60,0.7)" font-size="8.5" font-family="DM Sans">e⁻ transferred</text><text x="225" y="18" text-anchor="middle" fill="rgba(242,240,255,0.45)" font-size="9" font-family="DM Sans">COVALENT</text><circle cx="193" cy="80" r="30" fill="rgba(45,226,213,0.18)" stroke="rgba(45,226,213,0.55)" stroke-width="1.5"/><text x="193" y="84" text-anchor="middle" fill="#2de2d5" font-size="16" font-family="DM Sans" font-weight="700">O</text><circle cx="257" cy="80" r="30" fill="rgba(45,226,213,0.18)" stroke="rgba(45,226,213,0.55)" stroke-width="1.5"/><text x="257" y="84" text-anchor="middle" fill="#2de2d5" font-size="16" font-family="DM Sans" font-weight="700">O</text><ellipse cx="225" cy="80" rx="18" ry="13" fill="rgba(45,226,213,0.22)" stroke="rgba(45,226,213,0.5)" stroke-width="1"/><text x="225" y="84" text-anchor="middle" fill="rgba(242,240,255,0.8)" font-size="8" font-family="DM Sans">shared</text><text x="225" y="115" text-anchor="middle" fill="rgba(45,226,213,0.7)" font-size="8.5" font-family="DM Sans">electrons shared</text><line x1="152" y1="18" x2="152" y2="150" stroke="rgba(255,255,255,0.07)" stroke-width="0.8"/><rect x="8" y="135" width="284" height="46" rx="11" fill="rgba(255,107,107,0.05)" stroke="rgba(255,107,107,0.15)" stroke-width="0.7"/><text x="150" y="152" text-anchor="middle" fill="rgba(255,107,107,0.9)" font-size="9.5" font-family="DM Sans" font-weight="500">Electronegativity difference → bond type</text><text x="150" y="168" text-anchor="middle" fill="rgba(242,240,255,0.5)" font-size="9" font-family="DM Sans">Large diff = ionic | Small diff = covalent</text></svg>`},
+
+  {tag:'Molecular Geometry',em:'📐',ac:'#a78bfa',ad:'rgba(167,139,250,0.15)',
+   bg:'radial-gradient(ellipse at 40% 25%,rgba(167,139,250,0.2) 0%,transparent 55%),#0d0814',
+   gr:'linear-gradient(to top,#0d0814 40%,transparent)',
+   title:"VSEPR: Molecules Have Shape",
+   body:"<strong>VSEPR theory</strong>: electron pairs repel each other, giving molecules 3D shapes. Shape determines polarity, reactivity, and whether molecules can bond with each other.",
+   facts:[{l:'Linear',v:'CO₂, 180°'},{l:'Bent',v:'H₂O, 104.5°'},{l:'Tetrahedral',v:'CH₄, 109.5°'},{l:'Trigonal planar',v:'BF₃, 120°'}],
+   art:`<svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg"><text x="38" y="14" text-anchor="middle" fill="rgba(242,240,255,0.45)" font-size="8" font-family="DM Sans">Linear</text><circle cx="14" cy="55" r="10" fill="rgba(255,107,107,0.3)" stroke="rgba(255,107,107,0.6)" stroke-width="1"/><text x="14" y="59" text-anchor="middle" fill="#ff6b6b" font-size="8" font-family="DM Sans" font-weight="600">O</text><circle cx="38" cy="55" r="12" fill="rgba(167,139,250,0.3)" stroke="rgba(167,139,250,0.6)" stroke-width="1"/><text x="38" y="59" text-anchor="middle" fill="#a78bfa" font-size="9" font-family="DM Sans" font-weight="600">C</text><circle cx="62" cy="55" r="10" fill="rgba(255,107,107,0.3)" stroke="rgba(255,107,107,0.6)" stroke-width="1"/><text x="62" y="59" text-anchor="middle" fill="#ff6b6b" font-size="8" font-family="DM Sans" font-weight="600">O</text><line x1="24" y1="55" x2="26" y2="55" stroke="rgba(167,139,250,0.7)" stroke-width="2"/><line x1="24" y1="52" x2="26" y2="52" stroke="rgba(167,139,250,0.7)" stroke-width="2"/><line x1="50" y1="55" x2="52" y2="55" stroke="rgba(167,139,250,0.7)" stroke-width="2"/><line x1="50" y1="52" x2="52" y2="52" stroke="rgba(167,139,250,0.7)" stroke-width="2"/><text x="38" y="78" text-anchor="middle" fill="rgba(167,139,250,0.7)" font-size="8" font-family="DM Sans">CO₂ 180°</text><text x="118" y="14" text-anchor="middle" fill="rgba(242,240,255,0.45)" font-size="8" font-family="DM Sans">Bent</text><circle cx="118" cy="50" r="13" fill="rgba(255,107,107,0.3)" stroke="rgba(255,107,107,0.6)" stroke-width="1"/><text x="118" y="54" text-anchor="middle" fill="#ff6b6b" font-size="9" font-family="DM Sans" font-weight="600">O</text><circle cx="98" cy="70" r="9" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.35)" stroke-width="1"/><text x="98" y="74" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="8" font-family="DM Sans">H</text><circle cx="138" cy="70" r="9" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.35)" stroke-width="1"/><text x="138" y="74" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="8" font-family="DM Sans">H</text><line x1="107" y1="63" x2="111" y2="60" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><line x1="129" y1="63" x2="125" y2="60" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><text x="118" y="90" text-anchor="middle" fill="rgba(255,107,107,0.7)" font-size="8" font-family="DM Sans">H₂O 104.5°</text><text x="210" y="14" text-anchor="middle" fill="rgba(242,240,255,0.45)" font-size="8" font-family="DM Sans">Tetrahedral</text><circle cx="210" cy="48" r="13" fill="rgba(45,226,213,0.3)" stroke="rgba(45,226,213,0.6)" stroke-width="1"/><text x="210" y="52" text-anchor="middle" fill="#2de2d5" font-size="9" font-family="DM Sans" font-weight="600">C</text><circle cx="186" cy="72" r="9" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.35)" stroke-width="1"/><text x="186" y="76" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="8" font-family="DM Sans">H</text><circle cx="234" cy="72" r="9" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.35)" stroke-width="1"/><text x="234" y="76" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="8" font-family="DM Sans">H</text><circle cx="210" cy="28" r="9" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.35)" stroke-width="1"/><text x="210" y="32" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="8" font-family="DM Sans">H</text><circle cx="222" cy="65" r="9" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.35)" stroke-width="1"/><text x="222" y="69" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="8" font-family="DM Sans">H</text><line x1="197" y1="60" x2="193" y2="65" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><line x1="223" y1="60" x2="227" y2="65" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><line x1="210" y1="35" x2="210" y2="37" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><text x="210" y="92" text-anchor="middle" fill="rgba(45,226,213,0.7)" font-size="8" font-family="DM Sans">CH₄ 109.5°</text><rect x="8" y="108" width="284" height="74" rx="11" fill="rgba(167,139,250,0.05)" stroke="rgba(167,139,250,0.18)" stroke-width="0.7"/><text x="150" y="124" text-anchor="middle" fill="rgba(167,139,250,0.9)" font-size="9.5" font-family="DM Sans" font-weight="500">Lone pairs repel more than bonding pairs</text><text x="150" y="140" text-anchor="middle" fill="rgba(242,240,255,0.5)" font-size="9" font-family="DM Sans">That's why H₂O is bent (2 lone pairs on O)</text><text x="150" y="157" text-anchor="middle" fill="rgba(242,240,255,0.5)" font-size="9" font-family="DM Sans">Shape → polarity → intermolecular forces</text><text x="150" y="173" text-anchor="middle" fill="rgba(242,240,255,0.45)" font-size="9" font-family="DM Sans">Polarity → boiling point, solubility</text></svg>`},
+
+  {tag:'States of Matter',em:'💧',ac:'#4facfe',ad:'rgba(79,172,254,0.15)',
+   bg:'radial-gradient(ellipse at 50% 20%,rgba(79,172,254,0.2) 0%,transparent 60%),#080d14',
+   gr:'linear-gradient(to top,#080d14 40%,transparent)',
+   title:"Solid, Liquid, Gas — It's All Energy",
+   body:"Matter changes state by adding or removing <strong>thermal energy</strong>. The same H₂O molecules form ice, liquid water, and steam — only their <strong>kinetic energy</strong> differs.",
+   facts:[{l:'Solid',v:'vibrate only'},{l:'Liquid',v:'flow freely'},{l:'Gas',v:'fill container'},{l:'Plasma',v:'ionized gas'}],
+   art:`<svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg"><text x="48" y="16" text-anchor="middle" fill="rgba(242,240,255,0.45)" font-size="9" font-family="DM Sans">SOLID</text><text x="150" y="16" text-anchor="middle" fill="rgba(242,240,255,0.45)" font-size="9" font-family="DM Sans">LIQUID</text><text x="252" y="16" text-anchor="middle" fill="rgba(242,240,255,0.45)" font-size="9" font-family="DM Sans">GAS</text>${[[12,28],[36,28],[60,28],[12,52],[36,52],[60,52],[12,76],[36,76],[60,76]].map(function(p){return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="10" fill="rgba(79,172,254,0.28)" stroke="rgba(79,172,254,0.6)" stroke-width="1.2"/>';}).join('')}${[[102,26],[128,38],[154,26],[110,55],[140,62],[122,84],[154,78],[100,82]].map(function(p){return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="9" fill="rgba(45,226,213,0.26)" stroke="rgba(45,226,213,0.58)" stroke-width="1.2"/>';}).join('')}${[[200,20],[240,28],[214,54],[248,60],[205,82],[244,84],[228,40],[218,68]].map(function(p){return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="7" fill="rgba(255,107,107,0.2)" stroke="rgba(255,107,107,0.5)" stroke-width="1"/>';}).join('')}<rect x="4" y="102" width="90" height="74" rx="9" fill="rgba(79,172,254,0.05)" stroke="rgba(79,172,254,0.2)" stroke-width="0.7"/><rect x="101" y="102" width="64" height="74" rx="9" fill="rgba(45,226,213,0.05)" stroke="rgba(45,226,213,0.2)" stroke-width="0.7"/><rect x="172" y="102" width="122" height="74" rx="9" fill="rgba(255,107,107,0.04)" stroke="rgba(255,107,107,0.16)" stroke-width="0.7"/><text x="49" y="121" text-anchor="middle" fill="rgba(79,172,254,0.9)" font-size="10.5" font-family="DM Sans" font-weight="500">Fixed shape</text><text x="49" y="136" text-anchor="middle" fill="rgba(242,240,255,0.5)" font-size="9" font-family="DM Sans">Fixed volume</text><text x="49" y="150" text-anchor="middle" fill="rgba(242,240,255,0.4)" font-size="9" font-family="DM Sans">Low KE</text><text x="133" y="121" text-anchor="middle" fill="rgba(45,226,213,0.9)" font-size="10.5" font-family="DM Sans" font-weight="500">No fixed</text><text x="133" y="136" text-anchor="middle" fill="rgba(45,226,213,0.9)" font-size="10.5" font-family="DM Sans" font-weight="500">shape</text><text x="133" y="151" text-anchor="middle" fill="rgba(242,240,255,0.5)" font-size="9" font-family="DM Sans">Fixed vol.</text><text x="233" y="121" text-anchor="middle" fill="rgba(255,107,107,0.9)" font-size="10.5" font-family="DM Sans" font-weight="500">No shape</text><text x="233" y="136" text-anchor="middle" fill="rgba(242,240,255,0.5)" font-size="9" font-family="DM Sans">No vol.</text><text x="233" y="151" text-anchor="middle" fill="rgba(242,240,255,0.4)" font-size="9" font-family="DM Sans">High KE</text><text x="150" y="175" text-anchor="middle" fill="rgba(255,201,60,0.7)" font-size="8.5" font-family="DM Sans">← Remove energy: freeze/condense | Add energy: melt/evaporate →</text></svg>`},
+
+  {tag:'Chemical Reactions',em:'⚗️',ac:'#ffc93c',ad:'rgba(255,201,60,0.15)',
+   bg:'radial-gradient(ellipse at 40% 30%,rgba(255,201,60,0.18) 0%,transparent 55%),#0f0c00',
+   gr:'linear-gradient(to top,#0f0c00 40%,transparent)',
+   title:"Reactions: Atoms Rearrange, Never Disappear",
+   body:"Reactions break old bonds and form new ones. <strong>Law of Conservation of Mass</strong>: atoms are never created or destroyed. <strong>Balancing equations</strong> ensures both sides are equal.",
+   facts:[{l:'Reactants',v:'inputs (left)'},{l:'Products',v:'outputs (right)'},{l:'Catalyst',v:'speeds rxn'},{l:'Balanced eq.',v:'same atoms'}],
+   art:`<svg viewBox="0 0 300 180" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="fl" cx="50%" cy="100%"><stop offset="0%" stop-color="#e85d24"/><stop offset="70%" stop-color="#f2a623"/><stop offset="100%" stop-color="#fcde5a" stop-opacity="0"/></radialGradient></defs><text x="62" y="16" text-anchor="middle" fill="rgba(242,240,255,0.45)" font-size="9" font-family="DM Sans">REACTANTS</text><text x="238" y="16" text-anchor="middle" fill="rgba(242,240,255,0.45)" font-size="9" font-family="DM Sans">PRODUCTS</text><circle cx="34" cy="70" r="22" fill="rgba(123,104,238,0.22)" stroke="rgba(123,104,238,0.65)" stroke-width="1.5"/><text x="34" y="75" text-anchor="middle" fill="#a78bfa" font-size="15" font-family="DM Sans" font-weight="700">H₂</text><circle cx="92" cy="70" r="22" fill="rgba(255,107,107,0.22)" stroke="rgba(255,107,107,0.65)" stroke-width="1.5"/><text x="92" y="75" text-anchor="middle" fill="#ff6b6b" font-size="15" font-family="DM Sans" font-weight="700">O₂</text><text x="63" y="106" text-anchor="middle" fill="rgba(242,240,255,0.5)" font-size="10" font-family="DM Sans">2H₂ + O₂</text><path d="M122 68 L178 68" stroke="rgba(255,201,60,0.5)" stroke-width="1.5" stroke-dasharray="4,3"/><path d="M170 61 L180 68 L170 75" fill="rgba(255,201,60,0.85)"/><rect x="126" y="52" width="44" height="14" rx="6" fill="rgba(255,201,60,0.1)" stroke="rgba(255,201,60,0.3)" stroke-width="0.7"/><text x="148" y="62" text-anchor="middle" fill="rgba(255,201,60,0.85)" font-size="8" font-family="DM Sans">energy</text><circle cx="222" cy="64" r="25" fill="rgba(45,226,213,0.22)" stroke="rgba(45,226,213,0.65)" stroke-width="1.5"/><text x="222" y="70" text-anchor="middle" fill="#2de2d5" font-size="13" font-family="DM Sans" font-weight="700">H₂O</text><text x="238" y="105" text-anchor="middle" fill="rgba(242,240,255,0.5)" font-size="10" font-family="DM Sans">2H₂O</text><path d="M278 44 Q292 28 295 16 Q292 5 280 14" fill="url(#fl)" opacity="0.85"/><rect x="8" y="122" width="284" height="48" rx="11" fill="rgba(255,201,60,0.04)" stroke="rgba(255,201,60,0.16)" stroke-width="0.7"/><text x="150" y="140" text-anchor="middle" fill="rgba(255,201,60,0.9)" font-size="9.5" font-family="DM Sans" font-weight="500">Conservation of Mass: atoms in = atoms out</text><text x="150" y="157" text-anchor="middle" fill="rgba(242,240,255,0.5)" font-size="9" font-family="DM Sans">4H + 2O enter → 4H + 2O exit as 2H₂O</text></svg>`},
+
+  {tag:'Stoichiometry',em:'⚖️',ac:'#43e97b',ad:'rgba(67,233,123,0.12)',
+   bg:'radial-gradient(ellipse at 60% 30%,rgba(67,233,123,0.15) 0%,transparent 55%),#060f07',
+   gr:'linear-gradient(to top,#060f07 40%,transparent)',
+   title:"Stoichiometry: Recipe Ratios in Chemistry",
+   body:"<strong>Stoichiometry</strong> uses mole ratios from balanced equations to calculate how much reactant you need or product you'll get. The <strong>limiting reagent</strong> runs out first.",
+   facts:[{l:'Mole ratio',v:'from coefficients'},{l:'Limiting reagent',v:'runs out first'},{l:'Excess reagent',v:'leftover'},{l:'% yield',v:'actual/theoretical'}],
+   art:`<svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="10" width="284" height="36" rx="10" fill="rgba(67,233,123,0.08)" stroke="rgba(67,233,123,0.3)" stroke-width="1"/><text x="150" y="24" text-anchor="middle" fill="rgba(67,233,123,0.9)" font-size="10" font-family="DM Sans" font-weight="600">2H₂  +  O₂  →  2H₂O</text><text x="150" y="39" text-anchor="middle" fill="rgba(242,240,255,0.5)" font-size="8.5" font-family="DM Sans">Coefficients give mole ratios</text><text x="56" y="72" text-anchor="middle" fill="rgba(242,240,255,0.6)" font-size="9" font-family="DM Sans">H₂  : O₂  : H₂O</text><text x="56" y="88" text-anchor="middle" fill="rgba(67,233,123,0.85)" font-size="16" font-family="DM Sans" font-weight="700">2 : 1 : 2</text><text x="56" y="102" text-anchor="middle" fill="rgba(242,240,255,0.45)" font-size="8.5" font-family="DM Sans">mole ratio</text><line x1="116" y1="60" x2="116" y2="120" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/><text x="200" y="68" text-anchor="middle" fill="rgba(242,240,255,0.6)" font-size="9" font-family="DM Sans">Start: 4 mol H₂, 1 mol O₂</text><text x="200" y="84" text-anchor="middle" fill="rgba(255,107,107,0.85)" font-size="9" font-family="DM Sans">O₂ is limiting (needs 2 mol)</text><text x="200" y="100" text-anchor="middle" fill="rgba(45,226,213,0.85)" font-size="9" font-family="DM Sans">H₂ is in excess (uses 2 of 4)</text><text x="200" y="116" text-anchor="middle" fill="rgba(67,233,123,0.85)" font-size="9" font-family="DM Sans">Makes: 2 mol H₂O</text><rect x="8" y="132" width="284" height="50" rx="11" fill="rgba(67,233,123,0.04)" stroke="rgba(67,233,123,0.15)" stroke-width="0.7"/><text x="150" y="150" text-anchor="middle" fill="rgba(67,233,123,0.85)" font-size="9.5" font-family="DM Sans" font-weight="500">% yield = (actual yield / theoretical yield) × 100</text><text x="150" y="167" text-anchor="middle" fill="rgba(242,240,255,0.5)" font-size="9" font-family="DM Sans">Real reactions rarely reach 100% yield</text></svg>`},
+
+  {tag:'The Mole',em:'🔢',ac:'#2de2d5',ad:'rgba(45,226,213,0.15)',
+   bg:'radial-gradient(ellipse at 60% 30%,rgba(45,226,213,0.15) 0%,transparent 55%),#050f0d',
+   gr:'linear-gradient(to top,#050f0d 40%,transparent)',
+   title:"Avogadro's Number: Chemistry's Dozen",
+   body:"A <strong>mole</strong> = 6.02 × 10²³ particles. Just like a 'dozen' = 12, a mole lets chemists count invisible atoms by <strong>weighing</strong> them. Molar mass = grams per mole.",
+   facts:[{l:"Avogadro's #",v:'6.02 × 10²³'},{l:'1 mol H₂O',v:'18 g'},{l:'1 mol NaCl',v:'58.5 g'},{l:'1 mol CO₂',v:'44 g'}],
+   art:`<svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="8" width="134" height="100" rx="13" fill="rgba(45,226,213,0.07)" stroke="rgba(45,226,213,0.25)" stroke-width="1"/><text x="75" y="34" text-anchor="middle" fill="rgba(45,226,213,0.9)" font-size="20" font-family="DM Sans" font-weight="700">1 mol</text><text x="75" y="52" text-anchor="middle" fill="rgba(242,240,255,0.5)" font-size="9" font-family="DM Sans">of water (H₂O)</text><text x="75" y="74" text-anchor="middle" fill="rgba(242,240,255,0.85)" font-size="17" font-family="DM Sans" font-weight="600">= 18 g</text><text x="75" y="96" text-anchor="middle" fill="rgba(242,240,255,0.45)" font-size="8.5" font-family="DM Sans">≈ 18 mL liquid</text><rect x="158" y="8" width="134" height="100" rx="13" fill="rgba(45,226,213,0.07)" stroke="rgba(45,226,213,0.25)" stroke-width="1"/><text x="225" y="28" text-anchor="middle" fill="rgba(242,240,255,0.55)" font-size="8.5" font-family="DM Sans">contains exactly</text><text x="225" y="46" text-anchor="middle" fill="rgba(45,226,213,0.95)" font-size="11.5" font-family="DM Sans" font-weight="700">6.02 × 10²³</text><text x="225" y="60" text-anchor="middle" fill="rgba(242,240,255,0.55)" font-size="8.5" font-family="DM Sans">molecules</text>${(function(){var s='';for(var i=0;i<42;i++){var row=Math.floor(i/7),col=i%7;s+='<circle cx="'+(165+col*16)+'" cy="'+(74+row*10)+'" r="3" fill="rgba(45,226,213,0.65)" opacity="0.6"/>';}return s;})()}<rect x="8" y="120" width="284" height="62" rx="13" fill="rgba(45,226,213,0.04)" stroke="rgba(45,226,213,0.14)" stroke-width="0.7"/><text x="150" y="139" text-anchor="middle" fill="rgba(242,240,255,0.6)" font-size="9" font-family="DM Sans">Molar mass = sum of atomic masses on table</text><text x="150" y="155" text-anchor="middle" fill="rgba(45,226,213,0.9)" font-size="10" font-family="DM Sans" font-weight="500">H₂O: (2×1) + 16 = 18 g/mol</text><text x="150" y="171" text-anchor="middle" fill="rgba(45,226,213,0.9)" font-size="10" font-family="DM Sans" font-weight="500">CO₂: 12 + (2×16) = 44 g/mol</text></svg>`},
+
+  {tag:'Acids & Bases',em:'🧫',ac:'#a78bfa',ad:'rgba(167,139,250,0.15)',
+   bg:'radial-gradient(ellipse at 30% 40%,rgba(167,139,250,0.2) 0%,transparent 55%),#0c0814',
+   gr:'linear-gradient(to top,#0c0814 40%,transparent)',
+   title:"pH: The Chemistry of Sour & Bitter",
+   body:"<strong>Acids</strong> donate H⁺ ions (pH < 7). <strong>Bases</strong> accept H⁺ ions (pH > 7). The scale is <strong>logarithmic</strong>: each step is 10× stronger. Neutralization produces water + a salt.",
+   facts:[{l:'Stomach acid',v:'pH ≈ 1.5'},{l:'Blood',v:'pH 7.35–7.45'},{l:'Bleach',v:'pH ≈ 12.5'},{l:'Each step',v:'10× stronger'}],
+   art:`<svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="pg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#e24b4a"/><stop offset="48%" stop-color="#22d3ee"/><stop offset="100%" stop-color="#7b68ee"/></linearGradient></defs><rect x="8" y="12" width="284" height="20" rx="10" fill="url(#pg)" opacity="0.85"/><text x="52" y="9" text-anchor="middle" fill="rgba(226,75,74,0.9)" font-size="8.5" font-family="DM Sans">← ACID</text><text x="150" y="9" text-anchor="middle" fill="rgba(34,211,238,0.9)" font-size="8.5" font-family="DM Sans">NEUTRAL</text><text x="250" y="9" text-anchor="middle" fill="rgba(123,104,238,0.9)" font-size="8.5" font-family="DM Sans">BASE →</text>${[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14].map(function(n,i){return '<text x="'+(8+i*19+9)+'" y="45" text-anchor="middle" fill="rgba(242,240,255,0.6)" font-size="8" font-family="DM Sans">'+n+'</text>';}).join('')}${[['Stomach','pH 1',22,62,'#e24b4a'],['Lemon','pH 2',41,80,'#e24b4a'],['Coffee','pH 5',84,62,'#ef9f27'],['Water','pH 7',122,80,'#22d3ee'],['Blood','pH 7.4',141,62,'#22d3ee'],['Baking\nsoda','pH 8.5',160,80,'#7b68ee'],['Bleach','pH 12',235,62,'#7b68ee']].map(function(e){var lines=e[0].split('\n');var lh=lines.length>1?20:14;return '<line x1="'+e[2]+'" y1="32" x2="'+e[2]+'" y2="'+(e[3]-8)+'" stroke="'+e[4]+'" stroke-opacity="0.4" stroke-width="0.7" stroke-dasharray="2,2"/><rect x="'+(e[2]-22)+'" y="'+e[3]+'" width="44" height="'+(lh+13)+'" rx="5" fill="'+e[4]+'" fill-opacity="0.1" stroke="'+e[4]+'" stroke-opacity="0.35" stroke-width="0.6"/>'+lines.map(function(l,i){return '<text x="'+e[2]+'" y="'+(e[3]+9+(i*10))+'" text-anchor="middle" fill="'+e[4]+'" font-size="7" font-family="DM Sans" font-weight="500">'+l+'</text>';}).join('')+'<text x="'+e[2]+'" y="'+(e[3]+lh+9)+'" text-anchor="middle" fill="'+e[4]+'" font-size="7" font-family="DM Sans" opacity="0.7">'+e[1]+'</text>';}).join('')}<rect x="8" y="150" width="284" height="34" rx="10" fill="rgba(167,139,250,0.06)" stroke="rgba(167,139,250,0.2)" stroke-width="0.7"/><text x="150" y="164" text-anchor="middle" fill="rgba(167,139,250,0.9)" font-size="9.5" font-family="DM Sans" font-weight="500">Each pH step = 10× more acidic/basic</text><text x="150" y="178" text-anchor="middle" fill="rgba(242,240,255,0.5)" font-size="9" font-family="DM Sans">Acid + Base → Salt + Water</text></svg>`},
+
+  {tag:'Thermochemistry',em:'🔥',ac:'#ff9a56',ad:'rgba(255,154,86,0.15)',
+   bg:'radial-gradient(ellipse at 50% 20%,rgba(255,154,86,0.22) 0%,transparent 55%),#110800',
+   gr:'linear-gradient(to top,#110800 40%,transparent)',
+   title:"Energy In, Energy Out",
+   body:"<strong>Exothermic reactions</strong> release heat (ΔH < 0): combustion, explosions. <strong>Endothermic reactions</strong> absorb heat (ΔH > 0): photosynthesis, dissolving ammonium nitrate.",
+   facts:[{l:'Exothermic',v:'ΔH < 0'},{l:'Endothermic',v:'ΔH > 0'},{l:'Combustion',v:'exothermic'},{l:'Photosynthesis',v:'endothermic'}],
+   art:`<svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg"><text x="76" y="14" text-anchor="middle" fill="rgba(242,240,255,0.45)" font-size="9" font-family="DM Sans">EXOTHERMIC</text><text x="224" y="14" text-anchor="middle" fill="rgba(242,240,255,0.45)" font-size="9" font-family="DM Sans">ENDOTHERMIC</text><rect x="16" y="22" width="120" height="30" rx="7" fill="rgba(255,107,107,0.18)" stroke="rgba(255,107,107,0.5)" stroke-width="1"/><text x="76" y="42" text-anchor="middle" fill="#ff6b6b" font-size="11" font-family="DM Sans" font-weight="500">Reactants</text><rect x="16" y="104" width="120" height="30" rx="7" fill="rgba(255,107,107,0.1)" stroke="rgba(255,107,107,0.3)" stroke-width="1"/><text x="76" y="124" text-anchor="middle" fill="#ff6b6b" font-size="11" font-family="DM Sans" font-weight="500">Products</text><path d="M76 52 L76 104" stroke="rgba(255,107,107,0.6)" stroke-width="1.5" stroke-dasharray="4,3"/><path d="M68 97 L76 106 L84 97" fill="rgba(255,107,107,0.8)"/><text x="96" y="80" fill="rgba(255,201,60,0.85)" font-size="8.5" font-family="DM Sans">→ heat out</text><text x="76" y="148" text-anchor="middle" fill="rgba(255,107,107,0.7)" font-size="9" font-family="DM Sans">ΔH &lt; 0</text><text x="76" y="160" text-anchor="middle" fill="rgba(242,240,255,0.4)" font-size="8.5" font-family="DM Sans">burning wood</text><rect x="164" y="84" width="120" height="30" rx="7" fill="rgba(45,226,213,0.12)" stroke="rgba(45,226,213,0.35)" stroke-width="1"/><text x="224" y="104" text-anchor="middle" fill="#2de2d5" font-size="11" font-family="DM Sans" font-weight="500">Reactants</text><rect x="164" y="22" width="120" height="30" rx="7" fill="rgba(45,226,213,0.2)" stroke="rgba(45,226,213,0.5)" stroke-width="1"/><text x="224" y="42" text-anchor="middle" fill="#2de2d5" font-size="11" font-family="DM Sans" font-weight="500">Products</text><path d="M224 84 L224 52" stroke="rgba(45,226,213,0.6)" stroke-width="1.5" stroke-dasharray="4,3"/><path d="M216 59 L224 50 L232 59" fill="rgba(45,226,213,0.8)"/><text x="166" y="72" fill="rgba(45,226,213,0.85)" font-size="8.5" font-family="DM Sans">← heat in</text><text x="224" y="148" text-anchor="middle" fill="rgba(45,226,213,0.7)" font-size="9" font-family="DM Sans">ΔH &gt; 0</text><text x="224" y="160" text-anchor="middle" fill="rgba(242,240,255,0.4)" font-size="8.5" font-family="DM Sans">photosynthesis</text><line x1="150" y1="14" x2="150" y2="170" stroke="rgba(255,255,255,0.07)" stroke-width="0.8"/></svg>`},
+
+  {tag:'Kinetics',em:'⏱️',ac:'#4facfe',ad:'rgba(79,172,254,0.15)',
+   bg:'radial-gradient(ellipse at 35% 25%,rgba(79,172,254,0.2) 0%,transparent 55%),#06090f',
+   gr:'linear-gradient(to top,#06090f 40%,transparent)',
+   title:"Reaction Rates: How Fast Does It Go?",
+   body:"<strong>Reaction rate</strong> measures how fast reactants become products. Factors: <strong>temperature</strong> (more energy → faster), <strong>concentration</strong>, surface area, and catalysts.",
+   facts:[{l:'Activation energy',v:'energy barrier'},{l:'Catalyst',v:'lowers barrier'},{l:'Temperature',v:'↑T → ↑rate'},{l:'Concentration',v:'↑mol → ↑rate'}],
+   art:`<svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg"><text x="150" y="14" text-anchor="middle" fill="rgba(242,240,255,0.45)" font-size="9" font-family="DM Sans">ENERGY DIAGRAM</text><path d="M20 140 C40 140 55 140 70 110 C85 80 95 50 110 44 C125 38 135 50 150 70 C165 90 175 140 200 140" fill="none" stroke="rgba(79,172,254,0.6)" stroke-width="2"/><path d="M20 140 C40 140 55 140 70 110 C85 80 95 50 110 44 C125 38 130 48 140 60 C145 66 148 72 155 80 C165 100 175 140 200 140" fill="none" stroke="rgba(67,233,123,0.5)" stroke-width="2" stroke-dasharray="5,3"/><circle cx="110" cy="44" r="5" fill="rgba(79,172,254,0.8)"/><circle cx="110" cy="52" r="4" fill="rgba(67,233,123,0.7)"/><line x1="20" y1="140" x2="200" y2="140" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/><text x="14" y="144" fill="rgba(242,240,255,0.5)" font-size="8" font-family="DM Sans">Ea</text><text x="20" y="144" fill="rgba(242,240,255,0.5)" font-size="8" font-family="DM Sans">↑</text><line x1="30" y1="124" x2="30" y2="140" stroke="rgba(255,255,255,0.2)" stroke-width="0.8"/><text x="30" y="122" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-size="7.5" font-family="DM Sans">react.</text><line x1="180" y1="130" x2="180" y2="140" stroke="rgba(255,255,255,0.2)" stroke-width="0.8"/><text x="180" y="128" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-size="7.5" font-family="DM Sans">prod.</text><text x="110" y="36" text-anchor="middle" fill="rgba(79,172,254,0.8)" font-size="7.5" font-family="DM Sans">transition</text><text x="110" y="28" text-anchor="middle" fill="rgba(79,172,254,0.8)" font-size="7.5" font-family="DM Sans">state</text><line x1="80" y1="90" x2="80" y2="140" stroke="rgba(255,201,60,0.25)" stroke-width="0.8" stroke-dasharray="3,2"/><line x1="160" y1="116" x2="160" y2="140" stroke="rgba(255,201,60,0.25)" stroke-width="0.8" stroke-dasharray="3,2"/><path d="M80 115 L75 108 M80 115 L85 108" fill="none" stroke="rgba(255,201,60,0.5)" stroke-width="1"/><text x="120" y="108" fill="rgba(255,201,60,0.7)" font-size="7.5" font-family="DM Sans">Activation energy</text><text x="240" y="90" fill="rgba(67,233,123,0.8)" font-size="8" font-family="DM Sans">— Catalyzed</text><text x="240" y="102" fill="rgba(79,172,254,0.8)" font-size="8" font-family="DM Sans">— Uncatalyzed</text><rect x="8" y="154" width="284" height="30" rx="9" fill="rgba(79,172,254,0.05)" stroke="rgba(79,172,254,0.18)" stroke-width="0.7"/><text x="150" y="172" text-anchor="middle" fill="rgba(79,172,254,0.85)" font-size="9.5" font-family="DM Sans" font-weight="500">Catalyst lowers activation energy → faster reaction</text></svg>`},
+
+  {tag:'Equilibrium',em:'⚖️',ac:'#ffc93c',ad:'rgba(255,201,60,0.15)',
+   bg:'radial-gradient(ellipse at 45% 25%,rgba(255,201,60,0.18) 0%,transparent 55%),#0d0900',
+   gr:'linear-gradient(to top,#0d0900 40%,transparent)',
+   title:"Equilibrium: The Chemical Balancing Act",
+   body:"Reversible reactions reach <strong>dynamic equilibrium</strong> when forward and reverse rates are equal. <strong>Le Chatelier's Principle</strong>: if you stress a system, it shifts to relieve the stress.",
+   facts:[{l:'Forward rxn',v:'→ products'},{l:'Reverse rxn',v:'→ reactants'},{l:'Keq > 1',v:'favors products'},{l:'Keq < 1',v:'favors reactants'}],
+   art:`<svg viewBox="0 0 300 180" xmlns="http://www.w3.org/2000/svg"><text x="150" y="14" text-anchor="middle" fill="rgba(255,201,60,0.85)" font-size="10" font-family="DM Sans" font-weight="600">N₂ + 3H₂ ⇌ 2NH₃</text><rect x="8" y="22" width="130" height="40" rx="9" fill="rgba(123,104,238,0.15)" stroke="rgba(123,104,238,0.4)" stroke-width="1"/><text x="73" y="38" text-anchor="middle" fill="#a78bfa" font-size="10" font-family="DM Sans" font-weight="500">N₂  +  3H₂</text><text x="73" y="53" text-anchor="middle" fill="rgba(167,139,250,0.6)" font-size="8.5" font-family="DM Sans">Reactants</text><rect x="162" y="22" width="130" height="40" rx="9" fill="rgba(45,226,213,0.15)" stroke="rgba(45,226,213,0.4)" stroke-width="1"/><text x="227" y="38" text-anchor="middle" fill="#2de2d5" font-size="10" font-family="DM Sans" font-weight="500">2NH₃</text><text x="227" y="53" text-anchor="middle" fill="rgba(45,226,213,0.6)" font-size="8.5" font-family="DM Sans">Products</text><path d="M140 30 L162 30" stroke="rgba(255,201,60,0.7)" stroke-width="1.5" marker-end="url(#a)"/><path d="M162 52 L140 52" stroke="rgba(255,107,107,0.5)" stroke-width="1.5" marker-end="url(#b)"/><defs><marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M1 2L8 5L1 8" fill="none" stroke="rgba(255,201,60,0.7)" stroke-width="1.5"/></marker><marker id="b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M1 2L8 5L1 8" fill="none" stroke="rgba(255,107,107,0.5)" stroke-width="1.5"/></marker></defs><text x="151" y="28" text-anchor="middle" fill="rgba(255,201,60,0.7)" font-size="7" font-family="DM Sans">forward</text><text x="151" y="62" text-anchor="middle" fill="rgba(255,107,107,0.6)" font-size="7" font-family="DM Sans">reverse</text><rect x="8" y="76" width="284" height="96" rx="11" fill="rgba(255,201,60,0.04)" stroke="rgba(255,201,60,0.16)" stroke-width="0.7"/><text x="150" y="94" text-anchor="middle" fill="rgba(255,201,60,0.9)" font-size="10" font-family="DM Sans" font-weight="600">Le Chatelier's Principle</text><text x="150" y="110" text-anchor="middle" fill="rgba(242,240,255,0.55)" font-size="9" font-family="DM Sans">Add reactant → shifts right (→ more product)</text><text x="150" y="126" text-anchor="middle" fill="rgba(242,240,255,0.55)" font-size="9" font-family="DM Sans">Increase pressure → favors fewer moles of gas</text><text x="150" y="142" text-anchor="middle" fill="rgba(242,240,255,0.55)" font-size="9" font-family="DM Sans">Increase temperature → shifts endothermic way</text><text x="150" y="160" text-anchor="middle" fill="rgba(255,201,60,0.7)" font-size="9" font-family="DM Sans">System "fights back" against any change</text></svg>`},
+
+  {tag:'Gas Laws',em:'💨',ac:'#4facfe',ad:'rgba(79,172,254,0.15)',
+   bg:'radial-gradient(ellipse at 60% 20%,rgba(79,172,254,0.18) 0%,transparent 55%),#060a10',
+   gr:'linear-gradient(to top,#060a10 40%,transparent)',
+   title:"Gas Laws: Pressure, Volume & Temperature",
+   body:"Gases obey predictable laws. <strong>Boyle's Law</strong>: P↑ when V↓. <strong>Charles's Law</strong>: V↑ when T↑. Combined: the <strong>Ideal Gas Law</strong> PV = nRT relates all four variables.",
+   facts:[{l:"Boyle's",v:'P₁V₁ = P₂V₂'},{l:"Charles's",v:'V₁/T₁ = V₂/T₂'},{l:'Ideal Gas',v:'PV = nRT'},{l:'STP',v:'0°C, 1 atm'}],
+   art:`<svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="8" width="134" height="88" rx="12" fill="rgba(79,172,254,0.06)" stroke="rgba(79,172,254,0.25)" stroke-width="1"/><text x="75" y="26" text-anchor="middle" fill="rgba(79,172,254,0.9)" font-size="10" font-family="DM Sans" font-weight="600">Boyle's Law</text><text x="75" y="40" text-anchor="middle" fill="rgba(242,240,255,0.6)" font-size="8.5" font-family="DM Sans">P₁V₁ = P₂V₂</text><rect x="20" y="48" width="44" height="36" rx="6" fill="rgba(79,172,254,0.12)" stroke="rgba(79,172,254,0.4)" stroke-width="0.8"/>${[36,42,48,54,60,66].map(function(y){return '<circle cx="'+(22+Math.random()*38)+'" cy="'+y+'" r="2.5" fill="rgba(79,172,254,0.6)"/>';}).join('')}<rect x="78" y="56" width="24" height="28" rx="4" fill="rgba(79,172,254,0.18)" stroke="rgba(79,172,254,0.5)" stroke-width="0.8"/><circle cx="82" cy="62" r="2.2" fill="rgba(79,172,254,0.8)"/><circle cx="90" cy="58" r="2.2" fill="rgba(79,172,254,0.8)"/><circle cx="86" cy="70" r="2.2" fill="rgba(79,172,254,0.8)"/><circle cx="94" cy="66" r="2.2" fill="rgba(79,172,254,0.8)"/><text x="42" y="92" text-anchor="middle" fill="rgba(79,172,254,0.6)" font-size="7.5" font-family="DM Sans">large V, low P</text><text x="90" y="92" text-anchor="middle" fill="rgba(79,172,254,0.6)" font-size="7.5" font-family="DM Sans">small V, high P</text><rect x="158" y="8" width="134" height="88" rx="12" fill="rgba(67,233,123,0.06)" stroke="rgba(67,233,123,0.22)" stroke-width="1"/><text x="225" y="26" text-anchor="middle" fill="rgba(67,233,123,0.9)" font-size="10" font-family="DM Sans" font-weight="600">Charles's Law</text><text x="225" y="40" text-anchor="middle" fill="rgba(242,240,255,0.6)" font-size="8.5" font-family="DM Sans">V₁/T₁ = V₂/T₂</text><rect x="168" y="62" width="22" height="24" rx="4" fill="rgba(67,233,123,0.15)" stroke="rgba(67,233,123,0.4)" stroke-width="0.8"/><text x="179" y="77" text-anchor="middle" fill="rgba(79,172,254,0.7)" font-size="8" font-family="DM Sans">cold</text><rect x="198" y="48" width="22" height="38" rx="4" fill="rgba(67,233,123,0.2)" stroke="rgba(67,233,123,0.5)" stroke-width="0.8"/><text x="209" y="71" text-anchor="middle" fill="rgba(255,107,107,0.7)" font-size="8" font-family="DM Sans">hot</text><text x="225" y="92" text-anchor="middle" fill="rgba(67,233,123,0.6)" font-size="7.5" font-family="DM Sans">T↑ → Volume expands</text><rect x="8" y="108" width="284" height="74" rx="12" fill="rgba(255,201,60,0.05)" stroke="rgba(255,201,60,0.2)" stroke-width="0.8"/><text x="150" y="126" text-anchor="middle" fill="rgba(255,201,60,0.95)" font-size="13" font-family="DM Sans" font-weight="700">PV = nRT</text><text x="150" y="143" text-anchor="middle" fill="rgba(242,240,255,0.55)" font-size="9" font-family="DM Sans">P=pressure(atm) V=volume(L) n=moles</text><text x="150" y="158" text-anchor="middle" fill="rgba(242,240,255,0.55)" font-size="9" font-family="DM Sans">R=0.0821 L·atm/mol·K  T=temperature(K)</text><text x="150" y="174" text-anchor="middle" fill="rgba(255,201,60,0.65)" font-size="8.5" font-family="DM Sans">Real gases deviate at high P and low T</text></svg>`},
+
+  {tag:'Solutions',em:'🌊',ac:'#2de2d5',ad:'rgba(45,226,213,0.15)',
+   bg:'radial-gradient(ellipse at 40% 30%,rgba(45,226,213,0.18) 0%,transparent 55%),#050d0c',
+   gr:'linear-gradient(to top,#050d0c 40%,transparent)',
+   title:"Solutions: Dissolving and Concentration",
+   body:"A <strong>solution</strong> = solute dissolved in solvent. <strong>Molarity (M)</strong> = moles of solute per liter of solution. Polarity matters: <strong>\"like dissolves like\"</strong>.",
+   facts:[{l:'Molarity (M)',v:'mol/L'},{l:'Dilution',v:'M₁V₁ = M₂V₂'},{l:'Solubility',v:'g per 100 mL'},{l:'Saturated',v:'max dissolved'}],
+   art:`<svg viewBox="0 0 300 180" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="sol" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="rgba(45,226,213,0.15)"/><stop offset="100%" stop-color="rgba(45,226,213,0.4)"/></linearGradient></defs><rect x="40" y="20" width="80" height="100" rx="8" fill="url(#sol)" stroke="rgba(45,226,213,0.5)" stroke-width="1.5"/><text x="80" y="12" text-anchor="middle" fill="rgba(45,226,213,0.8)" font-size="9" font-family="DM Sans">1 M NaCl</text>${(function(){var s='';for(var i=0;i<18;i++){var x=48+Math.random()*64;var y=30+Math.random()*82;s+='<circle cx="'+x+'" cy="'+y+'" r="3.5" fill="rgba(123,104,238,0.7)"/><circle cx="'+(x+8)+'" cy="'+(y+4)+'" r="3" fill="rgba(255,107,107,0.6)"/>';}return s;})()}<text x="80" y="134" text-anchor="middle" fill="rgba(45,226,213,0.7)" font-size="8.5" font-family="DM Sans">1 mol NaCl per L</text><rect x="180" y="30" width="60" height="90" rx="8" fill="rgba(45,226,213,0.08)" stroke="rgba(45,226,213,0.3)" stroke-width="1.5"/><text x="210" y="22" text-anchor="middle" fill="rgba(45,226,213,0.65)" font-size="9" font-family="DM Sans">0.2 M NaCl</text>${(function(){var s='';for(var i=0;i<6;i++){var x=188+Math.random()*44;var y=38+Math.random()*74;s+='<circle cx="'+x+'" cy="'+y+'" r="3.5" fill="rgba(123,104,238,0.7)"/><circle cx="'+(x+7)+'" cy="'+(y+3)+'" r="3" fill="rgba(255,107,107,0.6)"/>';}return s;})()}<text x="210" y="134" text-anchor="middle" fill="rgba(45,226,213,0.6)" font-size="8.5" font-family="DM Sans">diluted 5×</text><rect x="8" y="148" width="284" height="26" rx="8" fill="rgba(45,226,213,0.05)" stroke="rgba(45,226,213,0.18)" stroke-width="0.7"/><text x="150" y="164" text-anchor="middle" fill="rgba(45,226,213,0.85)" font-size="9.5" font-family="DM Sans" font-weight="500">M = mol solute ÷ L solution  |  M₁V₁ = M₂V₂ (dilution)</text></svg>`},
+
+  {tag:'Electrochemistry',em:'⚡',ac:'#ffc93c',ad:'rgba(255,201,60,0.15)',
+   bg:'radial-gradient(ellipse at 55% 25%,rgba(255,201,60,0.18) 0%,transparent 55%),#0c0900',
+   gr:'linear-gradient(to top,#0c0900 40%,transparent)',
+   title:"Electrochemistry: Electrons on the Move",
+   body:"<strong>Oxidation</strong> loses electrons; <strong>Reduction</strong> gains electrons (OIL RIG). In <strong>electrochemical cells</strong>, electron flow generates electricity — like in your phone's battery.",
+   facts:[{l:'Oxidation',v:'lose e⁻ (OIL)'},{l:'Reduction',v:'gain e⁻ (RIG)'},{l:'Anode',v:'oxidation occurs'},{l:'Cathode',v:'reduction occurs'}],
+   art:`<svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="20" width="120" height="80" rx="10" fill="rgba(255,107,107,0.08)" stroke="rgba(255,107,107,0.3)" stroke-width="1"/><text x="68" y="36" text-anchor="middle" fill="rgba(255,107,107,0.85)" font-size="10" font-family="DM Sans" font-weight="600">ANODE (−)</text><text x="68" y="52" text-anchor="middle" fill="rgba(242,240,255,0.6)" font-size="9" font-family="DM Sans">Oxidation</text><text x="68" y="66" text-anchor="middle" fill="rgba(242,240,255,0.55)" font-size="8.5" font-family="DM Sans">Zn → Zn²⁺ + 2e⁻</text><text x="68" y="80" text-anchor="middle" fill="rgba(255,107,107,0.6)" font-size="8" font-family="DM Sans">loses electrons</text><rect x="172" y="20" width="120" height="80" rx="10" fill="rgba(45,226,213,0.08)" stroke="rgba(45,226,213,0.3)" stroke-width="1"/><text x="232" y="36" text-anchor="middle" fill="rgba(45,226,213,0.85)" font-size="10" font-family="DM Sans" font-weight="600">CATHODE (+)</text><text x="232" y="52" text-anchor="middle" fill="rgba(242,240,255,0.6)" font-size="9" font-family="DM Sans">Reduction</text><text x="232" y="66" text-anchor="middle" fill="rgba(242,240,255,0.55)" font-size="8.5" font-family="DM Sans">Cu²⁺ + 2e⁻ → Cu</text><text x="232" y="80" text-anchor="middle" fill="rgba(45,226,213,0.6)" font-size="8" font-family="DM Sans">gains electrons</text><path d="M128 30 C150 10 150 10 172 30" fill="none" stroke="rgba(255,201,60,0.7)" stroke-width="2"/><path d="M155 16 L165 18 L163 28" fill="none" stroke="rgba(255,201,60,0.7)" stroke-width="1.5"/><text x="150" y="8" text-anchor="middle" fill="rgba(255,201,60,0.8)" font-size="8" font-family="DM Sans">e⁻ flow →</text><rect x="8" y="114" width="284" height="68" rx="11" fill="rgba(255,201,60,0.05)" stroke="rgba(255,201,60,0.18)" stroke-width="0.7"/><text x="150" y="130" text-anchor="middle" fill="rgba(255,201,60,0.9)" font-size="10" font-family="DM Sans" font-weight="600">OIL RIG</text><text x="150" y="146" text-anchor="middle" fill="rgba(242,240,255,0.6)" font-size="9" font-family="DM Sans">Oxidation Is Loss — Reduction Is Gain</text><text x="150" y="162" text-anchor="middle" fill="rgba(242,240,255,0.5)" font-size="9" font-family="DM Sans">Batteries: spontaneous redox reactions</text><text x="150" y="175" text-anchor="middle" fill="rgba(242,240,255,0.5)" font-size="9" font-family="DM Sans">Electrolysis: forced non-spontaneous redox</text></svg>`},
+
+  {tag:'Nuclear Chemistry',em:'☢️',ac:'#ff6b6b',ad:'rgba(255,107,107,0.15)',
+   bg:'radial-gradient(ellipse at 50% 25%,rgba(255,107,107,0.2) 0%,transparent 55%),#140404',
+   gr:'linear-gradient(to top,#140404 40%,transparent)',
+   title:"Nuclear Chemistry: The Atom Splits",
+   body:"<strong>Radioactive decay</strong>: unstable nuclei emit particles to become stable. <strong>Alpha</strong> (α), <strong>Beta</strong> (β), and <strong>Gamma</strong> (γ) radiation. Half-life tells you how fast a sample decays.",
+   facts:[{l:'Alpha (α)',v:'helium nucleus'},{l:'Beta (β)',v:'electron'},{l:'Gamma (γ)',v:'EM radiation'},{l:'Half-life',v:'time for 50% decay'}],
+   art:`<svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg"><circle cx="90" cy="70" r="30" fill="rgba(255,107,107,0.15)" stroke="rgba(255,107,107,0.5)" stroke-width="1.5"/><text x="90" y="66" text-anchor="middle" fill="#ff6b6b" font-size="11" font-family="DM Sans" font-weight="700">²³⁸U</text><text x="90" y="80" text-anchor="middle" fill="rgba(255,107,107,0.6)" font-size="8" font-family="DM Sans">unstable</text><path d="M119 56 L155 40" stroke="rgba(255,201,60,0.7)" stroke-width="1.5" marker-end="url(#ar)"/><text x="142" y="36" fill="rgba(255,201,60,0.8)" font-size="8" font-family="DM Sans">α decay</text><circle cx="170" cy="34" r="10" fill="rgba(255,201,60,0.25)" stroke="rgba(255,201,60,0.6)" stroke-width="1"/><text x="170" y="38" text-anchor="middle" fill="#ffc93c" font-size="8" font-family="DM Sans" font-weight="600">⁴He</text><path d="M119 78 L155 100" stroke="rgba(167,139,250,0.7)" stroke-width="1.5" marker-end="url(#ar2)"/><text x="138" y="103" fill="rgba(167,139,250,0.8)" font-size="8" font-family="DM Sans">γ rays</text><defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M1 2L8 5L1 8" fill="none" stroke="rgba(255,201,60,0.7)" stroke-width="1.5"/></marker><marker id="ar2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M1 2L8 5L1 8" fill="none" stroke="rgba(167,139,250,0.7)" stroke-width="1.5"/></marker></defs><rect x="8" y="122" width="284" height="60" rx="11" fill="rgba(255,107,107,0.04)" stroke="rgba(255,107,107,0.15)" stroke-width="0.7"/><text x="150" y="140" text-anchor="middle" fill="rgba(255,107,107,0.9)" font-size="10" font-family="DM Sans" font-weight="500">Half-life: time for 50% of atoms to decay</text><text x="150" y="156" text-anchor="middle" fill="rgba(242,240,255,0.55)" font-size="9" font-family="DM Sans">C-14 half-life: 5,730 yrs → carbon dating</text><text x="150" y="172" text-anchor="middle" fill="rgba(242,240,255,0.5)" font-size="9" font-family="DM Sans">U-235 half-life: 700 million yrs → nuclear fuel</text></svg>`},
+
+  {tag:'Organic Chemistry',em:'🌿',ac:'#43e97b',ad:'rgba(67,233,123,0.12)',
+   bg:'radial-gradient(ellipse at 30% 30%,rgba(45,226,213,0.15) 0%,transparent 55%),#050f0d',
+   gr:'linear-gradient(to top,#050f0d 40%,transparent)',
+   title:"Carbon: The Chain Gang of Life",
+   body:"<strong>Organic chemistry</strong>: carbon-based molecules. Carbon's 4 bonds allow infinite structures — chains, rings, branching. All life on Earth is built from organic molecules.",
+   facts:[{l:'Alkane',v:'C–C single bonds'},{l:'Alkene',v:'C=C double bond'},{l:'Alkyne',v:'C≡C triple bond'},{l:'Benzene ring',v:'C₆H₆'}],
+   art:`<svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg"><text x="60" y="14" text-anchor="middle" fill="rgba(242,240,255,0.45)" font-size="9" font-family="DM Sans">METHANE CH₄</text><circle cx="60" cy="70" r="16" fill="rgba(45,226,213,0.22)" stroke="rgba(45,226,213,0.65)" stroke-width="1.5"/><text x="60" y="75" text-anchor="middle" fill="#2de2d5" font-size="13" font-family="DM Sans" font-weight="700">C</text>${[[60,38],[60,102],[28,70],[92,70]].map(function(p){return '<line x1="'+(p[0]<60?p[0]+9:p[0]>60?p[0]-9:p[0])+'" y1="'+(p[1]<70?p[1]+9:p[1]>70?p[1]-9:p[1])+'" x2="'+(p[0]<60?54:p[0]>60?66:p[0])+'" y2="'+(p[1]<70?64:p[1]>70?76:p[1])+'" stroke="rgba(45,226,213,0.45)" stroke-width="1.5"/><circle cx="'+p[0]+'" cy="'+p[1]+'" r="9" fill="rgba(255,255,255,0.09)" stroke="rgba(255,255,255,0.35)" stroke-width="1"/><text x="'+p[0]+'" y="'+(p[1]+4)+'" text-anchor="middle" fill="rgba(255,255,255,0.75)" font-size="9" font-family="DM Sans" font-weight="500">H</text>';}).join('')}<text x="190" y="14" text-anchor="middle" fill="rgba(242,240,255,0.45)" font-size="9" font-family="DM Sans">BENZENE C₆H₆</text>${(function(){var s='';for(var i=0;i<6;i++){var angle=(i*60-90)*Math.PI/180;var cx=190+40*Math.cos(angle);var cy=70+40*Math.sin(angle);var nx=190+58*Math.cos(angle);var ny=70+58*Math.sin(angle);var na=((i+1)%6*60-90)*Math.PI/180;var ex=190+40*Math.cos(na);var ey=70+40*Math.sin(na);s+='<line x1="'+cx+'" y1="'+cy+'" x2="'+ex+'" y2="'+ey+'" stroke="rgba(45,226,213,0.5)" stroke-width="1.5"/><circle cx="'+cx+'" cy="'+cy+'" r="10" fill="rgba(45,226,213,0.18)" stroke="rgba(45,226,213,0.6)" stroke-width="1"/><text x="'+cx+'" y="'+(cy+4)+'" text-anchor="middle" fill="#2de2d5" font-size="9" font-family="DM Sans" font-weight="600">C</text><circle cx="'+nx+'" cy="'+ny+'" r="7" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.28)" stroke-width="0.8"/><text x="'+nx+'" y="'+(ny+3)+'" text-anchor="middle" fill="rgba(255,255,255,0.65)" font-size="7" font-family="DM Sans">H</text>';}return s;})()}<circle cx="190" cy="70" r="22" fill="none" stroke="rgba(45,226,213,0.22)" stroke-width="1" stroke-dasharray="3,3"/><rect x="8" y="128" width="284" height="54" rx="11" fill="rgba(45,226,213,0.04)" stroke="rgba(45,226,213,0.14)" stroke-width="0.7"/><text x="150" y="146" text-anchor="middle" fill="rgba(45,226,213,0.9)" font-size="9.5" font-family="DM Sans" font-weight="500">Carbon can form chains, rings, branches</text><text x="150" y="162" text-anchor="middle" fill="rgba(242,240,255,0.5)" font-size="9" font-family="DM Sans">Functional groups determine chemical behavior</text><text x="150" y="176" text-anchor="middle" fill="rgba(242,240,255,0.5)" font-size="9" font-family="DM Sans">Over 10 million known organic compounds</text></svg>`},
+
+  {tag:'Functional Groups',em:'🧬',ac:'#a78bfa',ad:'rgba(167,139,250,0.15)',
+   bg:'radial-gradient(ellipse at 40% 25%,rgba(167,139,250,0.18) 0%,transparent 55%),#0b0814',
+   gr:'linear-gradient(to top,#0b0814 40%,transparent)',
+   title:"Functional Groups: Chemistry's Vocabulary",
+   body:"<strong>Functional groups</strong> are specific atom clusters that give organic molecules their properties. Knowing them lets you predict reactivity, solubility, and biological function.",
+   facts:[{l:'Hydroxyl –OH',v:'alcohols'},{l:'Carboxyl –COOH',v:'acids'},{l:'Amino –NH₂',v:'amines/AA'},{l:'Carbonyl C=O',v:'ketones/aldehydes'}],
+   art:`<svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg">${[['–OH','Hydroxyl','Alcohol','ethanol',22,14,'#2de2d5'],['–COOH','Carboxyl','Carboxylic acid','acetic acid',100,14,'#ff6b6b'],['–NH₂','Amino','Amine','amino acids',178,14,'#43e97b'],['C=O','Carbonyl','Ketone/Aldehyde','acetone',256,14,'#ffc93c']].map(function(e){return '<rect x="'+(e[4]-18)+'" y="22" width="56" height="72" rx="10" fill="'+e[6]+'" fill-opacity="0.08" stroke="'+e[6]+'" stroke-opacity="0.3" stroke-width="0.8"/><text x="'+e[4]+'" y="37" text-anchor="middle" fill="'+e[6]+'" font-size="11" font-family="DM Sans" font-weight="700">'+e[0]+'</text><text x="'+e[4]+'" y="52" text-anchor="middle" fill="'+e[6]+'" font-size="8.5" font-family="DM Sans" font-weight="500">'+e[1]+'</text><text x="'+e[4]+'" y="65" text-anchor="middle" fill="rgba(242,240,255,0.5)" font-size="8" font-family="DM Sans">'+e[2]+'</text><text x="'+e[4]+'" y="78" text-anchor="middle" fill="rgba(242,240,255,0.4)" font-size="7.5" font-family="DM Sans">e.g. '+e[3]+'</text>';}).join('')}<rect x="8" y="108" width="284" height="74" rx="11" fill="rgba(167,139,250,0.05)" stroke="rgba(167,139,250,0.18)" stroke-width="0.7"/><text x="150" y="126" text-anchor="middle" fill="rgba(167,139,250,0.9)" font-size="10" font-family="DM Sans" font-weight="500">Functional groups = chemical personality</text><text x="150" y="142" text-anchor="middle" fill="rgba(242,240,255,0.55)" font-size="9" font-family="DM Sans">–OH groups → hydrogen bonding → high BP</text><text x="150" y="158" text-anchor="middle" fill="rgba(242,240,255,0.55)" font-size="9" font-family="DM Sans">–COOH → donates H⁺ → makes things acidic</text><text x="150" y="174" text-anchor="middle" fill="rgba(242,240,255,0.5)" font-size="9" font-family="DM Sans">Proteins: amino (–NH₂) + carboxyl (–COOH)</text></svg>`},
+
+  {tag:'Intermolecular Forces',em:'🤝',ac:'#4facfe',ad:'rgba(79,172,254,0.15)',
+   bg:'radial-gradient(ellipse at 50% 20%,rgba(79,172,254,0.18) 0%,transparent 55%),#060810',
+   gr:'linear-gradient(to top,#060810 40%,transparent)',
+   title:"IMFs: Forces Between Molecules",
+   body:"<strong>Intermolecular forces (IMFs)</strong> hold molecules together. Stronger IMFs = higher boiling point. <strong>Hydrogen bonds</strong> are unusually strong — why water boils at 100°C instead of −80°C.",
+   facts:[{l:'H-bond',v:'N/O/F with H'},{l:'Dipole-dipole',v:'polar molecules'},{l:'London dispersion',v:'all molecules'},{l:'Strength',v:'H-bond > DD > LD'}],
+   art:`<svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg"><text x="150" y="14" text-anchor="middle" fill="rgba(79,172,254,0.85)" font-size="10" font-family="DM Sans" font-weight="600">Why water (H₂O) boils at 100°C not −80°C</text><circle cx="80" cy="65" r="14" fill="rgba(255,107,107,0.25)" stroke="rgba(255,107,107,0.6)" stroke-width="1.5"/><text x="80" y="69" text-anchor="middle" fill="#ff6b6b" font-size="11" font-family="DM Sans" font-weight="700">O</text><circle cx="56" cy="85" r="10" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.4)" stroke-width="1"/><text x="56" y="89" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="9" font-family="DM Sans">H</text><circle cx="104" cy="85" r="10" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.4)" stroke-width="1"/><text x="104" y="89" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="9" font-family="DM Sans">H</text><line x1="66" y1="78" x2="70" y2="74" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><line x1="94" y1="78" x2="90" y2="74" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><circle cx="170" cy="65" r="14" fill="rgba(255,107,107,0.25)" stroke="rgba(255,107,107,0.6)" stroke-width="1.5"/><text x="170" y="69" text-anchor="middle" fill="#ff6b6b" font-size="11" font-family="DM Sans" font-weight="700">O</text><circle cx="146" cy="85" r="10" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.4)" stroke-width="1"/><text x="146" y="89" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="9" font-family="DM Sans">H</text><circle cx="194" cy="85" r="10" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.4)" stroke-width="1"/><text x="194" y="89" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="9" font-family="DM Sans">H</text><line x1="156" y1="78" x2="160" y2="74" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><line x1="184" y1="78" x2="180" y2="74" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/><line x1="114" y1="75" x2="130" y2="72" stroke="rgba(79,172,254,0.7)" stroke-width="1.8" stroke-dasharray="3,2"/><text x="122" y="68" text-anchor="middle" fill="rgba(79,172,254,0.85)" font-size="7.5" font-family="DM Sans">H-bond</text><rect x="8" y="108" width="284" height="74" rx="11" fill="rgba(79,172,254,0.05)" stroke="rgba(79,172,254,0.18)" stroke-width="0.7"/><text x="150" y="126" text-anchor="middle" fill="rgba(79,172,254,0.9)" font-size="9.5" font-family="DM Sans" font-weight="500">Stronger IMFs → higher boiling point</text><text x="150" y="142" text-anchor="middle" fill="rgba(242,240,255,0.55)" font-size="9" font-family="DM Sans">Hydrogen bond: δ+ H ··· lone pair on N/O/F</text><text x="150" y="158" text-anchor="middle" fill="rgba(242,240,255,0.55)" font-size="9" font-family="DM Sans">London dispersion: temporary dipoles in all atoms</text><text x="150" y="174" text-anchor="middle" fill="rgba(242,240,255,0.5)" font-size="9" font-family="DM Sans">Larger molecules → stronger London forces</text></svg>`},
+
+  {tag:'Colligative Properties',em:'🧊',ac:'#4facfe',ad:'rgba(79,172,254,0.15)',
+   bg:'radial-gradient(ellipse at 35% 30%,rgba(79,172,254,0.15) 0%,transparent 55%),#05080f',
+   gr:'linear-gradient(to top,#05080f 40%,transparent)',
+   title:"Colligative Properties: It's About Numbers",
+   body:"Dissolving a solute changes the solvent's behavior. <strong>Boiling point elevation</strong>, <strong>freezing point depression</strong>, <strong>osmosis</strong> — all depend on the NUMBER of dissolved particles, not their identity.",
+   facts:[{l:'BP elevation',v:'ΔTb = Kb·m'},{l:'FP depression',v:'ΔTf = −Kf·m'},{l:'Osmosis',v:'water through membrane'},{l:'Application',v:'antifreeze, saltwater'}],
+   art:`<svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg"><text x="75" y="14" text-anchor="middle" fill="rgba(242,240,255,0.45)" font-size="9" font-family="DM Sans">PURE WATER</text><text x="225" y="14" text-anchor="middle" fill="rgba(242,240,255,0.45)" font-size="9" font-family="DM Sans">SALT WATER</text><rect x="8" y="20" width="134" height="80" rx="10" fill="rgba(79,172,254,0.12)" stroke="rgba(79,172,254,0.4)" stroke-width="1"/><text x="75" y="48" text-anchor="middle" fill="rgba(79,172,254,0.8)" font-size="10" font-family="DM Sans">BP = 100°C</text><text x="75" y="64" text-anchor="middle" fill="rgba(79,172,254,0.8)" font-size="10" font-family="DM Sans">FP = 0°C</text><rect x="158" y="20" width="134" height="80" rx="10" fill="rgba(45,226,213,0.1)" stroke="rgba(45,226,213,0.35)" stroke-width="1"/><text x="225" y="40" text-anchor="middle" fill="rgba(45,226,213,0.8)" font-size="10" font-family="DM Sans">BP = 100.5°C</text><text x="225" y="56" text-anchor="middle" fill="rgba(45,226,213,0.8)" font-size="10" font-family="DM Sans">FP = −1.86°C</text><text x="225" y="72" text-anchor="middle" fill="rgba(242,240,255,0.5)" font-size="8.5" font-family="DM Sans">(1 mol NaCl/L)</text><rect x="8" y="114" width="284" height="68" rx="11" fill="rgba(79,172,254,0.04)" stroke="rgba(79,172,254,0.16)" stroke-width="0.7"/><text x="150" y="132" text-anchor="middle" fill="rgba(79,172,254,0.9)" font-size="9.5" font-family="DM Sans" font-weight="500">Solute particles disrupt solvent ordering</text><text x="150" y="148" text-anchor="middle" fill="rgba(242,240,255,0.55)" font-size="9" font-family="DM Sans">↑ particles → harder to freeze or boil</text><text x="150" y="164" text-anchor="middle" fill="rgba(242,240,255,0.55)" font-size="9" font-family="DM Sans">Antifreeze in cars: lowers FP below 0°C</text><text x="150" y="178" text-anchor="middle" fill="rgba(255,201,60,0.7)" font-size="9" font-family="DM Sans">NaCl → 2 particles per formula unit (2× effect)</text></svg>`},
+
+  {tag:'Reaction Types',em:'🔄',ac:'#ff9a56',ad:'rgba(255,154,86,0.15)',
+   bg:'radial-gradient(ellipse at 45% 25%,rgba(255,154,86,0.18) 0%,transparent 55%),#0f0700',
+   gr:'linear-gradient(to top,#0f0700 40%,transparent)',
+   title:"5 Types of Chemical Reactions",
+   body:"All chemical reactions fall into categories. Recognizing the <strong>type</strong> lets you predict the products without memorizing every reaction. Combustion, synthesis, decomposition, single & double displacement.",
+   facts:[{l:'Synthesis',v:'A + B → AB'},{l:'Decomposition',v:'AB → A + B'},{l:'Single disp.',v:'A + BC → AC + B'},{l:'Double disp.',v:'AB + CD → AD + CB'}],
+   art:`<svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg">${[['Synthesis','A + B → AB','Two become one',22,14,'#43e97b'],['Decompos.','AB → A + B','One becomes two',22,72,'#ff6b6b'],['Combustion','C + O₂ → CO₂+H₂O','Burns with oxygen',22,130,'#ff9a56'],['Single disp.','A+BC→AC+B','Active metal swaps',172,14,'#4facfe'],['Double disp.','AB+CD→AD+CB','Two pairs swap',172,72,'#a78bfa']].map(function(e){return '<rect x="'+(e[4]-18)+'" y="'+(e[5]-2)+'" width="122" height="50" rx="9" fill="'+e[6]+'" fill-opacity="0.08" stroke="'+e[6]+'" stroke-opacity="0.28" stroke-width="0.8"/><text x="'+(e[4]+43)+'" y="'+(e[5]+14)+'" text-anchor="middle" fill="'+e[6]+'" font-size="10" font-family="DM Sans" font-weight="600">'+e[0]+'</text><text x="'+(e[4]+43)+'" y="'+(e[5]+29)+'" text-anchor="middle" fill="rgba(242,240,255,0.7)" font-size="8.5" font-family="DM Sans">'+e[1]+'</text><text x="'+(e[4]+43)+'" y="'+(e[5]+42)+'" text-anchor="middle" fill="rgba(242,240,255,0.45)" font-size="7.5" font-family="DM Sans">'+e[2]+'</text>';}).join('')}</svg>`},
+
+  {tag:'Electron Configuration',em:'🌀',ac:'#7b68ee',ad:'rgba(123,104,238,0.15)',
+   bg:'radial-gradient(ellipse at 50% 20%,rgba(123,104,238,0.22) 0%,transparent 55%),#08060f',
+   gr:'linear-gradient(to top,#08060f 40%,transparent)',
+   title:"Electron Configuration: Where Are They?",
+   body:"Electrons occupy <strong>orbitals</strong> (s, p, d, f) organized in shells. The <strong>Aufbau principle</strong>: fill lowest energy first. <strong>Hund's rule</strong>: one electron per orbital before pairing.",
+   facts:[{l:'s orbital',v:'max 2 e⁻'},{l:'p orbital',v:'max 6 e⁻'},{l:'d orbital',v:'max 10 e⁻'},{l:'Carbon config',v:'1s² 2s² 2p²'}],
+   art:`<svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg"><text x="150" y="14" text-anchor="middle" fill="rgba(242,240,255,0.45)" font-size="9" font-family="DM Sans">ENERGY LEVEL DIAGRAM</text>${[['1s',14,30,2],['2s',14,58,2],['2p',14,86,6],['3s',14,114,2],['3p',14,142,6]].map(function(e){return '<text x="'+e[1]+'" y="'+(e[2]+5)+'" fill="rgba(242,240,255,0.5)" font-size="9" font-family="DM Sans" font-weight="500">'+e[0]+'</text><rect x="32" y="'+e[2]+'" width="'+(e[3]*18)+'" height="14" rx="4" fill="rgba(123,104,238,0.1)" stroke="rgba(123,104,238,0.3)" stroke-width="0.7"/>';}).join('')}<circle cx="38" cy="37" r="4" fill="#7b68ee"/><circle cx="44" cy="37" r="4" fill="#7b68ee" opacity="0.7"/><circle cx="38" cy="65" r="4" fill="#7b68ee"/><circle cx="44" cy="65" r="4" fill="#7b68ee" opacity="0.7"/><circle cx="38" cy="93" r="4" fill="#7b68ee"/><circle cx="56" cy="93" r="4" fill="#7b68ee"/><circle cx="74" cy="93" r="4" fill="#7b68ee" opacity="0.4"/><text x="150" y="46" fill="rgba(242,240,255,0.6)" font-size="8.5" font-family="DM Sans">Hydrogen: 1s¹</text><text x="150" y="62" fill="rgba(242,240,255,0.6)" font-size="8.5" font-family="DM Sans">Carbon: 1s² 2s² 2p²</text><text x="150" y="78" fill="rgba(242,240,255,0.6)" font-size="8.5" font-family="DM Sans">Oxygen: 1s² 2s² 2p⁴</text><text x="150" y="94" fill="rgba(242,240,255,0.6)" font-size="8.5" font-family="DM Sans">Neon: 1s² 2s² 2p⁶ (full)</text><text x="150" y="110" fill="rgba(242,240,255,0.6)" font-size="8.5" font-family="DM Sans">Na: [Ne] 3s¹ (shorthand)</text><rect x="8" y="124" width="284" height="60" rx="11" fill="rgba(123,104,238,0.05)" stroke="rgba(123,104,238,0.18)" stroke-width="0.7"/><text x="150" y="142" text-anchor="middle" fill="rgba(123,104,238,0.9)" font-size="9.5" font-family="DM Sans" font-weight="500">Valence electrons = outermost shell electrons</text><text x="150" y="158" text-anchor="middle" fill="rgba(242,240,255,0.55)" font-size="9" font-family="DM Sans">Determines bonding behavior and reactivity</text><text x="150" y="174" text-anchor="middle" fill="rgba(242,240,255,0.5)" font-size="9" font-family="DM Sans">Noble gases: full outer shell → unreactive</text></svg>`},
+
+  {tag:'Precipitation & Solubility',em:'🌧️',ac:'#2de2d5',ad:'rgba(45,226,213,0.15)',
+   bg:'radial-gradient(ellipse at 40% 20%,rgba(45,226,213,0.16) 0%,transparent 55%),#050d0c',
+   gr:'linear-gradient(to top,#050d0c 40%,transparent)',
+   title:"When Solutions Crash: Precipitation",
+   body:"When two solutions are mixed and form an <strong>insoluble solid</strong>, a <strong>precipitate</strong> forms. Solubility rules predict this. Net ionic equations show only the ions that actually react.",
+   facts:[{l:'Soluble',v:'stays dissolved'},{l:'Insoluble',v:'forms precipitate'},{l:'Net ionic eq.',v:'active ions only'},{l:'Spectator ions',v:'unchanged'}],
+   art:`<svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="10" width="120" height="70" rx="10" fill="rgba(123,104,238,0.1)" stroke="rgba(123,104,238,0.35)" stroke-width="1"/><text x="68" y="30" text-anchor="middle" fill="rgba(167,139,250,0.9)" font-size="9" font-family="DM Sans" font-weight="500">AgNO₃(aq)</text><text x="68" y="46" text-anchor="middle" fill="rgba(242,240,255,0.55)" font-size="8.5" font-family="DM Sans">Ag⁺ + NO₃⁻</text><text x="68" y="60" text-anchor="middle" fill="rgba(242,240,255,0.4)" font-size="8" font-family="DM Sans">clear solution</text><rect x="172" y="10" width="120" height="70" rx="10" fill="rgba(255,107,107,0.1)" stroke="rgba(255,107,107,0.35)" stroke-width="1"/><text x="232" y="30" text-anchor="middle" fill="rgba(255,107,107,0.9)" font-size="9" font-family="DM Sans" font-weight="500">NaCl(aq)</text><text x="232" y="46" text-anchor="middle" fill="rgba(242,240,255,0.55)" font-size="8.5" font-family="DM Sans">Na⁺ + Cl⁻</text><text x="232" y="60" text-anchor="middle" fill="rgba(242,240,255,0.4)" font-size="8" font-family="DM Sans">clear solution</text><path d="M128 44 L172 44" stroke="rgba(255,255,255,0.3)" stroke-width="1" stroke-dasharray="4,3"/><text x="150" y="42" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="8" font-family="DM Sans">mix</text><rect x="8" y="94" width="284" height="88" rx="11" fill="rgba(45,226,213,0.05)" stroke="rgba(45,226,213,0.2)" stroke-width="0.7"/><text x="150" y="112" text-anchor="middle" fill="rgba(45,226,213,0.9)" font-size="10" font-family="DM Sans" font-weight="500">AgCl(s)↓ precipitate forms!</text><text x="150" y="127" text-anchor="middle" fill="rgba(242,240,255,0.55)" font-size="8.5" font-family="DM Sans">Ag⁺ + Cl⁻ → AgCl(s)  (net ionic)</text><text x="150" y="142" text-anchor="middle" fill="rgba(242,240,255,0.5)" font-size="8.5" font-family="DM Sans">Na⁺ and NO₃⁻ are spectator ions</text><text x="150" y="158" text-anchor="middle" fill="rgba(255,201,60,0.7)" font-size="8.5" font-family="DM Sans">Solubility rules: All Ag salts insoluble except AgNO₃</text><text x="150" y="173" text-anchor="middle" fill="rgba(242,240,255,0.4)" font-size="8.5" font-family="DM Sans">↓ = insoluble solid  ↑ = gas released</text></svg>`},
+
+  {tag:'Buffers & Titration',em:'🧪',ac:'#ff6b6b',ad:'rgba(255,107,107,0.15)',
+   bg:'radial-gradient(ellipse at 45% 25%,rgba(255,107,107,0.18) 0%,transparent 55%),#100608',
+   gr:'linear-gradient(to top,#100608 40%,transparent)',
+   title:"Buffers & Titration: Controlling pH",
+   body:"A <strong>buffer</strong> resists pH changes (weak acid + conjugate base). <strong>Titration</strong> determines unknown concentration by adding a reagent of known concentration until the reaction is complete (<strong>equivalence point</strong>).",
+   facts:[{l:'Buffer',v:'weak acid + salt'},{l:'Blood buffer',v:'H₂CO₃/HCO₃⁻'},{l:'Equivalence pt',v:'moles match'},{l:'Indicator',v:'changes color'}],
+   art:`<svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg"><text x="150" y="14" text-anchor="middle" fill="rgba(242,240,255,0.45)" font-size="9" font-family="DM Sans">TITRATION CURVE (strong acid + strong base)</text><line x1="20" y1="160" x2="280" y2="160" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/><line x1="20" y1="20" x2="20" y2="160" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/><text x="12" y="25" text-anchor="middle" fill="rgba(242,240,255,0.4)" font-size="7" font-family="DM Sans">14</text><text x="12" y="95" text-anchor="middle" fill="rgba(242,240,255,0.4)" font-size="7" font-family="DM Sans">7</text><text x="12" y="158" text-anchor="middle" fill="rgba(242,240,255,0.4)" font-size="7" font-family="DM Sans">0</text><text x="150" y="172" text-anchor="middle" fill="rgba(242,240,255,0.4)" font-size="7" font-family="DM Sans">Volume of base added →</text><path d="M25 150 C60 148 90 145 110 140 C120 138 124 130 126 116 C128 102 130 90 132 88 C134 86 136 86 140 86 C144 86 146 86 148 90 C150 94 152 108 154 120 C156 132 160 140 190 148 C220 155 255 158 275 158" fill="none" stroke="rgba(255,107,107,0.75)" stroke-width="2.5"/><line x1="140" y1="60" x2="140" y2="160" stroke="rgba(255,201,60,0.4)" stroke-width="1" stroke-dasharray="3,2"/><circle cx="140" cy="88" r="5" fill="rgba(255,201,60,0.8)"/><text x="155" y="72" fill="rgba(255,201,60,0.85)" font-size="8" font-family="DM Sans">Equivalence</text><text x="155" y="82" fill="rgba(255,201,60,0.85)" font-size="8" font-family="DM Sans">point (pH=7)</text><rect x="8" y="8" width="42" height="10" rx="3" fill="rgba(255,107,107,0.2)" stroke="rgba(255,107,107,0.4)" stroke-width="0.7"/><text x="29" y="16" text-anchor="middle" fill="rgba(255,107,107,0.8)" font-size="7.5" font-family="DM Sans">acid region</text><rect x="250" y="8" width="40" height="10" rx="3" fill="rgba(123,104,238,0.2)" stroke="rgba(123,104,238,0.4)" stroke-width="0.7"/><text x="270" y="16" text-anchor="middle" fill="rgba(167,139,250,0.8)" font-size="7.5" font-family="DM Sans">base region</text></svg>`},
+
+  {tag:'Environmental Chemistry',em:'🌍',ac:'#43e97b',ad:'rgba(67,233,123,0.12)',
+   bg:'radial-gradient(ellipse at 40% 25%,rgba(67,233,123,0.15) 0%,transparent 55%),#050d07',
+   gr:'linear-gradient(to top,#050d07 40%,transparent)',
+   title:"Chemistry & The Environment",
+   body:"Chemistry explains environmental issues: <strong>ozone depletion</strong> (CFCs break O₃), <strong>acid rain</strong> (NOₓ + H₂O → HNO₃), and the <strong>greenhouse effect</strong> (CO₂ absorbs IR radiation).",
+   facts:[{l:'Ozone',v:'O₃ shields UV'},{l:'Acid rain',v:'pH < 5.6'},{l:'CO₂',v:'greenhouse gas'},{l:'Photochemistry',v:'light-driven rxns'}],
+   art:`<svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg"><circle cx="150" cy="95" r="55" fill="rgba(67,233,123,0.08)" stroke="rgba(67,233,123,0.3)" stroke-width="1.5"/><circle cx="150" cy="95" r="70" fill="none" stroke="rgba(79,172,254,0.2)" stroke-width="1.2" stroke-dasharray="4,3"/><text x="150" y="91" text-anchor="middle" fill="rgba(67,233,123,0.8)" font-size="11" font-family="DM Sans" font-weight="600">Earth</text><text x="150" y="105" text-anchor="middle" fill="rgba(67,233,123,0.5)" font-size="8" font-family="DM Sans">atmosphere</text><text x="34" y="28" text-anchor="middle" fill="rgba(255,201,60,0.85)" font-size="8" font-family="DM Sans">☀️ UV</text><path d="M46 34 L88 58" stroke="rgba(255,201,60,0.5)" stroke-width="1.2" marker-end="url(#ae)"/><defs><marker id="ae" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M1 2L8 5L1 8" fill="none" stroke="rgba(255,201,60,0.5)" stroke-width="1.5"/></marker></defs><text x="60" y="52" fill="rgba(79,172,254,0.7)" font-size="7.5" font-family="DM Sans">O₃ blocks UV</text><text x="255" y="42" text-anchor="middle" fill="rgba(255,107,107,0.85)" font-size="8" font-family="DM Sans">CFC</text><text x="255" y="54" text-anchor="middle" fill="rgba(255,107,107,0.6)" font-size="7.5" font-family="DM Sans">destroys O₃</text><text x="255" y="130" text-anchor="middle" fill="rgba(45,226,213,0.8)" font-size="8" font-family="DM Sans">CO₂</text><text x="255" y="142" text-anchor="middle" fill="rgba(45,226,213,0.6)" font-size="7.5" font-family="DM Sans">traps heat</text><rect x="8" y="162" width="284" height="22" rx="7" fill="rgba(67,233,123,0.05)" stroke="rgba(67,233,123,0.18)" stroke-width="0.7"/><text x="150" y="176" text-anchor="middle" fill="rgba(67,233,123,0.8)" font-size="9" font-family="DM Sans">Green chemistry: design reactions that minimize waste</text></svg>`},
+
+  {tag:'Polymers & Biochemistry',em:'🧬',ac:'#ff6b6b',ad:'rgba(255,107,107,0.15)',
+   bg:'radial-gradient(ellipse at 50% 20%,rgba(255,107,107,0.15) 0%,transparent 55%),#0f0508',
+   gr:'linear-gradient(to top,#0f0508 40%,transparent)',
+   title:"Polymers: Chemistry of Life and Plastics",
+   body:"<strong>Polymers</strong> are large molecules built from repeating <strong>monomer</strong> units. Natural polymers include DNA, proteins, and carbohydrates. Synthetic polymers include nylon, polyethylene, and silicone.",
+   facts:[{l:'Monomer',v:'repeating unit'},{l:'Protein',v:'amino acid chain'},{l:'DNA',v:'nucleotide polymer'},{l:'Nylon',v:'synthetic polyamide'}],
+   art:`<svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg">${(function(){var s='';for(var i=0;i<8;i++){var x=14+i*34;var col=i%2===0?'rgba(255,107,107,0.7)':'rgba(123,104,238,0.7)';var bcol=i%2===0?'rgba(255,107,107,0.15)':'rgba(123,104,238,0.15)';var scol=i%2===0?'rgba(255,107,107,0.4)':'rgba(123,104,238,0.4)';s+='<circle cx="'+(x+14)+'" cy="50" r="14" fill="'+bcol+'" stroke="'+scol+'" stroke-width="1.2"/><text x="'+(x+14)+'" y="54" text-anchor="middle" fill="'+col+'" font-size="9" font-family="DM Sans" font-weight="600">'+(i%2===0?'A':'B')+'</text>';if(i<7)s+='<line x1="'+(x+28)+'" y1="50" x2="'+(x+34)+'" y2="50" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>';}return s;})()}<text x="150" y="80" text-anchor="middle" fill="rgba(242,240,255,0.55)" font-size="8.5" font-family="DM Sans">…repeating monomer units (ABABABABAB…)</text><text x="150" y="14" text-anchor="middle" fill="rgba(242,240,255,0.45)" font-size="9" font-family="DM Sans">POLYMER CHAIN</text><rect x="8" y="92" width="284" height="90" rx="11" fill="rgba(255,107,107,0.04)" stroke="rgba(255,107,107,0.15)" stroke-width="0.7"/><text x="150" y="110" text-anchor="middle" fill="rgba(255,107,107,0.9)" font-size="9.5" font-family="DM Sans" font-weight="500">Natural polymers</text><text x="150" y="126" text-anchor="middle" fill="rgba(242,240,255,0.55)" font-size="9" font-family="DM Sans">Proteins: amino acids linked by peptide bonds</text><text x="150" y="141" text-anchor="middle" fill="rgba(242,240,255,0.55)" font-size="9" font-family="DM Sans">DNA: nucleotides linked in a double helix</text><text x="150" y="156" text-anchor="middle" fill="rgba(242,240,255,0.55)" font-size="9" font-family="DM Sans">Starch/cellulose: glucose monomers</text><text x="150" y="171" text-anchor="middle" fill="rgba(255,201,60,0.65)" font-size="9" font-family="DM Sans">Synthetic: nylon, polyester, polypropylene</text></svg>`}
+];
+
+var QUIZ = [
+  {q:'Which subatomic particle has a positive charge?',opts:['Electron','Neutron','Proton','Photon'],ans:2,exp:'Protons (+) are in the nucleus. Electrons (−) orbit it. Neutrons are neutral.'},
+  {q:'Elements in the same group (column) share the same number of…',opts:['Neutrons','Valence electrons','Atomic mass units','Protons'],ans:1,exp:'Groups share the same number of valence electrons → similar chemical properties.'},
+  {q:'Sodium chloride (NaCl) is held together by which type of bond?',opts:['Covalent','Metallic','Hydrogen','Ionic'],ans:3,exp:'Na transfers one electron to Cl, creating Na⁺ and Cl⁻. Opposite charges attract → ionic bond.'},
+  {q:'According to VSEPR theory, the shape of H₂O is…',opts:['Linear','Trigonal planar','Bent','Tetrahedral'],ans:2,exp:'O has 2 lone pairs + 2 bonding pairs. Lone pairs repel more → bent shape (104.5°).'},
+  {q:'A solution with pH = 2 is best described as…',opts:['Strongly basic','Neutral','Weakly acidic','Strongly acidic'],ans:3,exp:'pH below 7 = acidic. pH 2 is very acidic (stomach acid). Each pH step = 10× difference.'},
+  {q:'In the ideal gas law PV = nRT, what does "n" represent?',opts:['Temperature','Number of atoms','Number of moles','Pressure constant'],ans:2,exp:'n = number of moles of gas. R = 0.0821 L·atm/mol·K. T must be in Kelvin.'},
+  {q:'OIL RIG is a memory trick. "OIL" stands for…',opts:['Oxidation Is Loss','Organic Ion Loss','Oxygen Is Lighter','Oxide Is Large'],ans:0,exp:'OIL RIG: Oxidation Is Loss (of electrons), Reduction Is Gain. Essential for electrochemistry.'},
+  {q:'Which type of reaction is: 2H₂ + O₂ → 2H₂O?',opts:['Decomposition','Single displacement','Synthesis','Double displacement'],ans:2,exp:'Synthesis (combination): two or more substances combine to form a single product.'},
+  {q:'What is the molar mass of CO₂?',opts:['28 g/mol','32 g/mol','44 g/mol','52 g/mol'],ans:2,exp:'C = 12 g/mol, O = 16 g/mol × 2 = 32. Total = 12 + 32 = 44 g/mol.'},
+  {q:'A catalyst increases reaction rate by…',opts:['Increasing temperature','Providing more reactants','Lowering activation energy','Producing more products'],ans:2,exp:'Catalysts provide an alternative pathway with lower activation energy — they are not consumed.'},
+  {q:'Le Chatelier\'s principle states that a stressed system will…',opts:['Stop reacting','Shift to relieve the stress','Always form more products','Release heat'],ans:1,exp:'The system shifts in the direction that counteracts the change (add reactant → shifts right).'},
+  {q:'Hydrogen bonding occurs when H is bonded to…',opts:['Carbon','Any metal','Nitrogen, oxygen, or fluorine','Sulfur'],ans:2,exp:'H-bonds form between H and highly electronegative N, O, or F atoms. This is why water has an unusually high boiling point.'}
+];
+
+// ====== STATE ======
+var cur=0, qaArr=new Array(QUIZ.length).fill(null), xp=0, animating=false;
+var total=LESSONS.length+QUIZ.length+1;
+
+// ====== INIT ======
+function init(){
+  tickClock(); setInterval(tickClock,15000);
+  buildDots(); buildCards();
+  bindGestures();
+}
+
+function tickClock(){
+  var n=new Date(),h=n.getHours(),m=n.getMinutes();
+  document.getElementById('clk').textContent=h+':'+(m<10?'0'+m:m);
+}
+
+function buildDots(){
+  var row=document.getElementById('dr');
+  row.innerHTML='';
+  for(var i=0;i<total;i++){
+    var d=document.createElement('div');
+    var isQ=i>=LESSONS.length&&i<total-1,isFin=i===total-1;
+    d.className='pd'+(isQ||isFin?' qt':'')+(i===0?' active':'');
+    row.appendChild(d);
+  }
+}
+
+function buildCards(){
+  var feed=document.getElementById('feed');
+  feed.innerHTML='';
+  LESSONS.forEach(function(l,i){
+    var el=document.createElement('div');
+    el.className='card'+(i===0?' active':'');
+    el.id='c'+i;
+    el.innerHTML=lessonHTML(l,i);
+    feed.appendChild(el);
+  });
+  QUIZ.forEach(function(q,i){
+    var idx=LESSONS.length+i;
+    var el=document.createElement('div');
+    el.className='card';
+    el.id='c'+idx;
+    el.innerHTML=quizHTML(q,i,idx);
+    feed.appendChild(el);
+  });
+  var fin=document.createElement('div');
+  fin.className='card'; fin.id='c'+(total-1);
+  fin.innerHTML=finalHTML();
+  feed.appendChild(fin);
+}
+
+function lessonHTML(l,i){
+  var facts=l.facts.map(function(f){return '<div class="fc"><div class="fl">'+f.l+'</div><div class="fv">'+f.v+'</div></div>';}).join('');
+  return '<div class="cbg" style="background:'+l.bg+'"></div>'
+    +'<div class="cart">'+l.art+'</div>'
+    +'<div class="cgr" style="background:'+l.gr+'"></div>'
+    +'<div class="ln">'+String(i+1).padStart(2,'0')+'</div>'
+    +'<div class="ci">'
+      +'<div class="ltag" style="background:'+l.ad+';border:1px solid '+l.ac+'55;color:'+l.ac+'">'+l.em+' '+l.tag+'</div>'
+      +'<div class="lttl">'+l.title+'</div>'
+      +'<div class="lbod">'+l.body+'</div>'
+      +'<div class="fr">'+facts+'</div>'
+    +'</div>'
+    +(i===0?'<div class="sc"><div class="sa">↑</div><div class="sl">SWIPE UP</div></div>':'');
+}
+
+function quizHTML(q,qi,ci){
+  var L=['A','B','C','D'];
+  var pct=Math.round(qi/QUIZ.length*100);
+  var opts=q.opts.map(function(o,i){
+    return '<button class="opt" id="o'+ci+'_'+i+'" onclick="pickAnswer('+ci+','+qi+','+i+')">'
+      +'<span class="ok">'+L[i]+'</span><span class="ot">'+o+'</span></button>';
+  }).join('');
+  return '<div class="cbg" style="background:radial-gradient(ellipse at 40% 20%,rgba(255,107,107,0.15) 0%,transparent 55%),#0c0812"></div>'
+    +'<div class="qci">'
+      +'<div class="qbadge">🧪 Question '+(qi+1)+' of '+QUIZ.length+'</div>'
+      +'<div class="qpbar"><div class="qpfill" style="width:'+pct+'%"></div></div>'
+      +'<div class="qq">'+q.q+'</div>'
+      +'<div class="ol">'+opts+'</div>'
+      +'<div class="fb" id="fb'+ci+'">'+q.exp+'</div>'
+      +'<button class="cb" id="cb'+ci+'" onclick="goNext()">'+(qi<QUIZ.length-1?'Next Question →':'See My Results →')+'</button>'
+    +'</div>';
+}
+
+function finalHTML(){
+  return '<div class="cbg" style="background:radial-gradient(ellipse at 50%30%,rgba(123,104,238,0.2) 0%,transparent 60%),#080810"></div>'
+    +'<div class="fin">'
+      +'<div class="rw"><svg viewBox="0 0 136 136" xmlns="http://www.w3.org/2000/svg"><circle class="ring-track" cx="68" cy="68" r="55" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="9"/><circle id="rf" cx="68" cy="68" r="55" fill="none" stroke="#7b68ee" stroke-width="9" stroke-linecap="round" stroke-dasharray="345.4" stroke-dashoffset="345.4" transform="rotate(-90 68 68)"/></svg>'
+        +'<div class="rc"><div class="rp" id="fpct">—</div><div class="rl">SCORE</div></div>'
+      +'</div>'
+      +'<div class="fg" id="fgr"></div>'
+      +'<div class="fm" id="fmsg"></div>'
+      +'<div class="fs"><div class="fst"><div class="fsn" id="fcor" style="color:#2de2d5">—</div><div class="fsl">Correct</div></div>'
+        +'<div class="fst"><div class="fsn" id="fxp" style="color:#ffc93c">—</div><div class="fsl">XP</div></div>'
+        +'<div class="fst"><div class="fsn" id="fles" style="color:#a78bfa">'+LESSONS.length+'</div><div class="fsl">Lessons</div></div>'
+      +'</div>'
+      +'<button class="fb2" onclick="openProgress()">📊 View Full Progress</button>'
+    +'</div>';
+}
+
+// ====== NAVIGATION ======
+function goNext(){ goTo(cur+1); }
+
+function goTo(idx){
+  if(idx<0||idx>=total||animating||idx===cur) return;
+  animating=true;
+  var from=document.getElementById('c'+cur);
+  var to=document.getElementById('c'+idx);
+  if(!from||!to){animating=false;return;}
+  from.classList.add('exit-up');
+  from.classList.remove('active');
+  to.classList.add('active');
+  cur=idx;
+  if(cur===total-1) computeFinal();
+  updateDots(); updateXP();
+  setTimeout(function(){from.classList.remove('exit-up');animating=false;},520);
+}
+
+function updateDots(){
+  document.querySelectorAll('.pd').forEach(function(d,i){
+    d.classList.remove('active','seen');
+    if(i<cur) d.classList.add('seen');
+    if(i===cur) d.classList.add('active');
+  });
+}
+function updateXP(){ document.getElementById('xt').textContent=xp+' XP'; }
+
+// ====== QUIZ ======
+function pickAnswer(ci,qi,oi){
+  if(qaArr[qi]!==null) return;
+  var q=QUIZ[qi];
+  var correct=oi===q.ans;
+  qaArr[qi]={chosen:oi,correct:correct};
+  if(correct){xp+=100;toast('✅ Correct! +100 XP');}
+  else{toast('❌ Not quite — see explanation below');}
+  for(var i=0;i<q.opts.length;i++){
+    var btn=document.getElementById('o'+ci+'_'+i);
+    if(!btn) continue;
+    btn.setAttribute('disabled','true');
+    if(i===q.ans) btn.classList.add('cor');
+    else if(i===oi&&!correct) btn.classList.add('wrg');
+    else btn.classList.add('dim');
+  }
+  var fb=document.getElementById('fb'+ci);
+  if(fb) fb.classList.add('show');
+  var cb=document.getElementById('cb'+ci);
+  if(cb) cb.classList.add('show');
+  updateXP();
+}
+
+function computeFinal(){
+  var correct=qaArr.filter(function(a){return a&&a.correct;}).length;
+  var total2=QUIZ.length;
+  var pct=Math.round(correct/total2*100);
+  document.getElementById('fpct').textContent=pct+'%';
+  document.getElementById('fcor').textContent=correct+'/'+total2;
+  document.getElementById('fxp').textContent=xp;
+  var gr='',msg='',col='#7b68ee';
+  if(pct===100){gr='Perfect Score! 🏆';msg="Flawless! You've mastered high school chemistry.";col='#ffc93c';}
+  else if(pct>=80){gr='Excellent! ⚗️';msg='Outstanding work! Strong chemistry foundation.';col='#2de2d5';}
+  else if(pct>=60){gr='Good Job! 📚';msg='Solid understanding. Review a few topics to level up!';col='#a78bfa';}
+  else{gr='Keep Studying! 💪';msg='Chemistry takes practice. Review and try again!';col='#ff6b6b';}
+  document.getElementById('fgr').textContent=gr;
+  document.getElementById('fmsg').textContent=msg;
+  var ring=document.getElementById('rf');
+  if(ring){
+    ring.setAttribute('stroke',col);
+    setTimeout(function(){ring.style.transition='stroke-dashoffset 1.5s cubic-bezier(0.34,1.2,0.64,1)';ring.setAttribute('stroke-dashoffset',345.4*(1-pct/100));},150);
+  }
+}
+
+// ====== BOTTOM NAV ======
+function navTo(tab){
+  setActive(tab==='home'?'n-home':tab==='quiz'?'n-quiz':'n-prog');
+  if(tab==='home'&&cur>=LESSONS.length) goTo(0);
+  if(tab==='quiz'&&cur<LESSONS.length) goTo(LESSONS.length);
+  if(tab==='prog') openProgress();
+}
+function setActive(id){
+  ['n-home','n-quiz','n-prog'].forEach(function(n){var el=document.getElementById(n);if(el)el.classList.remove('active');});
+  var el=document.getElementById(id);if(el)el.classList.add('active');
+}
+
+// ====== PROGRESS ======
+function openProgress(){
+  var ps=document.getElementById('ps');
+  var correct=qaArr.filter(function(a){return a&&a.correct;}).length;
+  var done=qaArr.filter(Boolean).length;
+  var ldone=Math.min(cur,LESSONS.length);
+  var icons=['⚛️','🧲','🔭','🔗','📐','💧','⚗️','⚖️','🔢','🧫','🔥','⏱️','⚖️','💨','🌊','⚡','☢️','🌿','🧬','🤝','🧊','🔄','🌀','🌧️','🧪','🌍','🧬'];
+  ps.innerHTML='<div class="psh"><button class="bkb" onclick="closeProgress()">←</button><div class="pstl">My Progress</div></div>'
+    +'<div class="psb">'
+      +'<div class="sg">'
+        +'<div class="st2"><div class="sn" style="color:#2de2d5">'+ldone+'</div><div class="sl2">Lessons</div></div>'
+        +'<div class="st2"><div class="sn" style="color:#ffc93c">'+xp+'</div><div class="sl2">XP</div></div>'
+        +'<div class="st2"><div class="sn" style="color:#ff6b6b">'+(done>0?Math.round(correct/done*100):0)+'%</div><div class="sl2">Quiz</div></div>'
+      +'</div>'
+      +'<div><div class="sectit">📖 Lesson Map</div><div>'
+        +LESSONS.map(function(l,i){
+          var done2=i<cur,act=i===cur;
+          var sc=done2?'sd':act?'sn2':'slk',st=done2?'Done ✓':act?'Now':'Locked';
+          return '<div class="ltile">'
+            +'<div class="ltic" style="background:'+l.ad+'">'+(icons[i]||'📚')+'</div>'
+            +'<div class="ltin"><div class="ltnm">'+l.title.split(':')[0]+'</div><div class="lttg">'+l.tag+'</div></div>'
+            +'<span class="lts '+sc+'">'+st+'</span></div>';
+        }).join('')
+      +'</div></div>'
+      +(qaArr.some(Boolean)?'<div><div class="sectit">🧪 Quiz Results</div><div class="qrt">'
+        +QUIZ.map(function(q,i){
+          var a=qaArr[i];
+          var cls=a?(a.correct?'qok':'qno'):'qbl';
+          var mk=a?(a.correct?'✓':'✗'):'–';
+          var pts=a?(a.correct?'+100':'0'):'';
+          return '<div class="qrr"><div class="qrm '+cls+'">'+mk+'</div><div class="qrq">Q'+(i+1)+': '+q.q.substring(0,50)+(q.q.length>50?'…':'')+'</div>'+(pts?'<div class="qrp">'+pts+'</div>':'')+'</div>';
+        }).join('')
+      +'</div></div>':'<div style="text-align:center;padding:18px;color:var(--mu);font-family:var(--f2);font-size:13px">Swipe through lessons to unlock the quiz!</div>')
+    +'</div>';
+  ps.classList.add('open');
+  setActive('n-prog');
+}
+function closeProgress(){
+  document.getElementById('ps').classList.remove('open');
+  setActive(cur>=LESSONS.length?'n-quiz':'n-home');
+}
+
+// ====== GESTURES — no overlay blocking quiz ======
+function bindGestures(){
+  var feed=document.getElementById('feed');
+  var sy=0,st2=0,dragging=false;
+
+  feed.addEventListener('touchstart',function(e){
+    // If on a quiz card, let it scroll naturally — only hijack on lesson/final
+    var isQCard=cur>=LESSONS.length&&cur<total-1;
+    if(isQCard) return; // let quiz scroll
+    sy=e.touches[0].clientY; st2=Date.now(); dragging=true;
+  },{passive:true});
+
+  feed.addEventListener('touchmove',function(e){
+    var isQCard=cur>=LESSONS.length&&cur<total-1;
+    if(isQCard) return;
+    if(dragging) e.preventDefault();
+  },{passive:false});
+
+  feed.addEventListener('touchend',function(e){
+    if(!dragging) return; dragging=false;
+    var isQCard=cur>=LESSONS.length&&cur<total-1;
+    if(isQCard) return;
+    var dy=sy-e.changedTouches[0].clientY, dt=Date.now()-st2;
+    if(dy>55||(dy>30&&dt<350)) goNext();
+    else if(dy<-55||(dy<-30&&dt<350)) {if(cur>0) goTo(cur-1);}
+  },{passive:true});
+
+  // Wheel
+  var wlock=false;
+  document.addEventListener('wheel',function(e){
+    var isQCard=cur>=LESSONS.length&&cur<total-1;
+    if(isQCard) return;
+    if(wlock) return;
+    if(e.deltaY>35){goNext();wlock=true;setTimeout(function(){wlock=false;},600);}
+    else if(e.deltaY<-35&&cur>0){goTo(cur-1);wlock=true;setTimeout(function(){wlock=false;},600);}
+  },{passive:true});
+
+  // Keyboard
+  document.addEventListener('keydown',function(e){
+    var isQCard=cur>=LESSONS.length&&cur<total-1;
+    if(isQCard) return;
+    if(e.key==='ArrowUp'||e.key===' '||e.key==='ArrowRight'){e.preventDefault();goNext();}
+    if((e.key==='ArrowDown'||e.key==='ArrowLeft')&&cur>0){e.preventDefault();goTo(cur-1);}
+  });
+}
+
+// ====== TOAST ======
+function toast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},2500);
+}
+
+// ====== A2HS ======
+function dismissA2HS(){
+  var b=document.getElementById('a2hs');
+  if(!b) return;
+  b.style.transition='transform .3s ease,opacity .3s ease';
+  b.style.transform='translateY(110%)'; b.style.opacity='0';
+  setTimeout(function(){b.style.display='none';},320);
+  sessionStorage.setItem('a2hs','1');
+}
+
+// ====== SERVICE WORKER ======
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    var swCode='const C="cs-v1";self.addEventListener("install",e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(["./"]).catch(()=>{})));self.skipWaiting();});self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C).map(k=>caches.delete(k)))));self.clients.claim();});self.addEventListener("fetch",e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(res=>{var cl=res.clone();caches.open(C).then(c=>c.put(e.request,cl));return res;}).catch(()=>r)));});';
+    var bl=new Blob([swCode],{type:'application/javascript'});
+    navigator.serviceWorker.register(URL.createObjectURL(bl),{scope:'./'}).catch(function(){});
+  });
+}
+
+init();
+</script>
+</body>
+</html>
